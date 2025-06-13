@@ -9,25 +9,29 @@
 
 <!-- Filter Form -->
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <label for="deviceFilter" class="form-label">按设备筛选</label>
-        <select class="form-select" id="deviceFilter" name="device">
-            <option value="">所有设备</option>
-            {% for device in user.device_set.all %}
-                <option value="{{ device.device_id }}" {% if request.GET.device == device.device_id %}selected{% endif %}>{{ device.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-4">
-        <label for="statusFilter" class="form-label">按状态筛选</label>
-        <select class="form-select" id="statusFilter" name="status">
-            <option value="">所有状态</option>
-            <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>新警报</option>
-            <option value="read" {% if request.GET.status == 'read' %}selected{% endif %}>已读</option>
-        </select>
-    </div>
-    <div class="col-md-4 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary">筛选</button>
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <label for="device-filter" class="form-label">按设备筛选</label>
+            <select id="device-filter" name="device" class="form-select">
+                <option value="">所有设备</option>
+                {% for device in devices %}
+                    <option value="{{ device.device_id }}" {% if device.device_id == selected_device %}selected{% endif %}>
+                        {{ device.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label for="status-filter" class="form-label">按状态筛选</label>
+            <select id="status-filter" name="status" class="form-select">
+                <option value="">所有状态</option>
+                <option value="new" {% if selected_status == 'new' %}selected{% endif %}>新警报</option>
+                <option value="read" {% if selected_status == 'read' %}selected{% endif %}>已读警报</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">筛选</button>
+        </div>
     </div>
 </form>
 

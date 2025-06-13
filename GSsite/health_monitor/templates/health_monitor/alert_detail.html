@@ -23,10 +23,10 @@
             <p><strong>Alert Type:</strong> <span class="badge bg-danger">{{ alert.get_alert_type_display }}</span></p>
             <p><strong>Message:</strong></p>
             <p>{{ alert.message }}</p>
-            <p><strong>Status:</strong> {{ alert.acknowledged|yesno:"Acknowledged,Pending" }}</p>
+            <p><strong>Status:</strong> {{ alert.get_status_display }}</p>
         </div>
         <div class="card-footer">
-            <a href="{% url 'health_monitor:dashboard' %}#alerts" class="btn btn-primary">Back to Alerts</a>
+            <a href="{% url 'health_monitor:alerts' %}" class="btn btn-primary">Back to Alerts</a>
         </div>
     </div>
 </div>

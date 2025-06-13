@@ -201,7 +201,16 @@ def alerts(request):
 
     alerts_list = queryset.order_by('-timestamp')
     
-    return render(request, 'health_monitor/alerts.html', {'alerts': alerts_list})
+    devices = Device.objects.filter(user=request.user)
+    
+    context = {
+        'alerts': alerts_list,
+        'devices': devices,
+        'selected_device': device_filter,
+        'selected_status': status_filter,
+    }
+    
+    return render(request, 'health_monitor/alerts.html', context)
 
 @login_required
 @require_http_methods(['POST'])

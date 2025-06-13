@@ -197,9 +197,9 @@ SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 1209600  # 2周
 
 # 登录配置
-LOGIN_URL = 'login'
+LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login'
 
 # Channel layers (WebSocket via Redis)
 CHANNEL_LAYERS = {

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Change to the directory containing manage.py
+cd /app/GSsite
+
 # 收集静态文件
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
