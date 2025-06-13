@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css?family=Rajdhani:300,400,500,600,700');
+@import url('https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
+
+* {
+    box-sizing: border-box !important;
+    transition: all 0.5s ease-in-out;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+}
+
+.index_title {
+    width: 100%;
+    float: left;
+    font-size: 60px;
+    color: #15e4d0;
+    font-weight: bold;
+    line-height: 1.2;
+    padding-top: 120px;
+    text-shadow: 3px 3px 8px rgba(21, 228, 208, 0.5);
+    animation: fadeInDown 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.index_text {
+    width: 100%;
+    float: left;
+    font-size: 16px;
+    margin: 0;
+    color: #252525;
+    text-align: justify;
+    font-weight: 300;
+    line-height: 24px;
+    animation: slideInUp 1.5s ease-out;
+}
+
+.bg_section {
+    width: 100%;
+    float: left;
+    background-image: url(../src/banner-bg.png);
+    background-size: cover;
+    padding: 10px 0px 25px 0px;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+}
+
+.bg_section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(34, 193, 195, 0.4), rgba(253, 187, 45, 0.1));
+    transform: scale(1.5);
+    z-index: 1;
+    animation: glowPulse 5s infinite ease-in-out;
+}
+
+.bg_section img {
+    position: relative;
+    z-index: 2;
+}
+
+.bg_img {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.5s ease-in-out;
+}
+
+.bg_img:hover {
+    transform: scale(1.1) rotate(2deg);
+    filter: brightness(1.2);
+}
+
+.nav-link {
+    position: relative;
+    font-size: 16px;
+    color: #252525;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: #154c79; /* 深蓝色 */
+    transition: all 0.4s ease-in-out;
+    z-index: -1;
+}
+
+.nav-link:hover::before {
+    left: 0;
+}
+
+.nav-link:hover {
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(21, 228, 208, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn {
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.4s ease-in-out;
+}
+
+.btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(21, 228, 208, 0.4);
+}
+
+.btn-outline-primary {
+    border: 2px solid #15e4d0;
+    color: #15e4d0;
+}
+
+.btn-outline-primary:hover {
+    background-color: #15e4d0;
+    color: #fff;
+}
+
+/* Keyframe Animations */
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        transform: scale(1.5);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.7);
+        opacity: 1;
+    }
+}
+
+/* Responsive Media Queries */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .index_title {
+        font-size: 50px;
+    }
+
+    .index_text {
+        font-size: 14px;
+    }
+
+    .bg_section {
+        background-size: cover;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .index_title {
+        font-size: 45px;
+    }
+
+    .index_text {
+        font-size: 14px;
+    }
+
+    .bg_section {
+        background-size: cover;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+    .index_title {
+        font-size: 40px;
+    }
+
+    .index_text {
+        font-size: 13px;
+    }
+
+    .bg_section {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 575px) {
+    .index_title {
+        font-size: 36px;
+    }
+
+    .index_text {
+        font-size: 12px;
+    }
+
+    .bg_section {
+        background-size: cover;
+    }
+}

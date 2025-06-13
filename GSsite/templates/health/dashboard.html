@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Health Monitoring System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .health-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .health-card:hover {
+        transform: translateY(-5px);
+    }
+    .chart-container {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+    .device-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+    }
+    .status-online {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-offline {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .alert-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        padding: 3px 6px;
+        border-radius: 50%;
+        background-color: #dc3545;
+        color: white;
+        font-size: 0.7em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">Welcome, {{ user.get_full_name|default:user.username }}</h2>
+            <p class="text-muted">Here's your health monitoring overview for today.</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="health-card card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Devices</h5>
+                    <h2 class="card-text">{{ active_devices_count }}</h2>
+                    <p class="card-text"><small>Last updated: {{ last_update_time }}</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="health-card card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Health Score</h5>
+                    <h2 class="card-text">{{ health_score }}/100</h2>
+                    <p class="card-text"><small>Based on latest readings</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="health-card card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Alerts</h5>
+                    <h2 class="card-text">{{ pending_alerts_count }}</h2>
+                    <p class="card-text"><small>Requires attention</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="health-card card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Data Points Today</h5>
+                    <h2 class="card-text">{{ data_points_today }}</h2>
+                    <p class="card-text"><small>Collected today</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="health-card card">
+                <div class="card-body">
+                    <h5 class="card-title">Heart Rate Trend</h5>
+                    <div class="chart-container" id="heartRateChart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="health-card card">
+                <div class="card-body">
+                    <h5 class="card-title">Temperature Trend</h5>
+                    <div class="chart-container" id="temperatureChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Devices and Alerts -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="health-card card">
+                <div class="card-header">
+                    <h5 class="mb-0">Connected Devices</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Device Name</th>
+                                    <th>Status</th>
+                                    <th>Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for device in devices %}
+                                <tr>
+                                    <td>{{ device.name }}</td>
+                                    <td>
+                                        <span class="device-status {% if device.is_online %}status-online{% else %}status-offline{% endif %}">
+                                            {{ device.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ device.last_update }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="health-card card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Alerts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for alert in recent_alerts %}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ alert.title }}</h6>
+                                <small class="text-muted">{{ alert.time_ago }}</small>
+                            </div>
+                            <p class="mb-1">{{ alert.message }}</p>
+                            <small class="text-muted">Device: {{ alert.device_name }}</small>
+                        </a>
+                        {% empty %}
+                        <p class="text-center text-muted my-3">No recent alerts</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/dataShow.js' %}"></script>
+<script>
+    // WebSocket连接
+    const healthSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/health_data/'
+    );
+
+    healthSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        updateDashboard(data);
+    };
+
+    // 更新仪表盘数据
+    function updateDashboard(data) {
+        // 更新图表
+        if (data.heart_rate) {
+            updateHeartRateChart(data.heart_rate);
+        }
+        if (data.temperature) {
+            updateTemperatureChart(data.temperature);
+        }
+
+        // 更新设备状态
+        if (data.device_status) {
+            updateDeviceStatus(data.device_status);
+        }
+
+        // 更新警报
+        if (data.alerts) {
+            updateAlerts(data.alerts);
+        }
+    }
+
+    // 初始化图表
+    const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+    const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+
+    const heartRateChart = new Chart(heartRateCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Heart Rate (BPM)',
+                data: [],
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    const temperatureChart = new Chart(temperatureCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    // 更新图表数据
+    function updateHeartRateChart(heartRate) {
+        const now = new Date().toLocaleTimeString();
+        heartRateChart.data.labels.push(now);
+        heartRateChart.data.datasets[0].data.push(heartRate);
+        
+        if (heartRateChart.data.labels.length > 20) {
+            heartRateChart.data.labels.shift();
+            heartRateChart.data.datasets[0].data.shift();
+        }
+        
+        heartRateChart.update();
+    }
+
+    function updateTemperatureChart(temperature) {
+        const now = new Date().toLocaleTimeString();
+        temperatureChart.data.labels.push(now);
+        temperatureChart.data.datasets[0].data.push(temperature);
+        
+        if (temperatureChart.data.labels.length > 20) {
+            temperatureChart.data.labels.shift();
+            temperatureChart.data.datasets[0].data.shift();
+        }
+        
+        temperatureChart.update();
+    }
+
+    // 更新设备状态
+    function updateDeviceStatus(status) {
+        // 实现设备状态更新逻辑
+    }
+
+    // 更新警报
+    function updateAlerts(alerts) {
+        // 实现警报更新逻辑
+    }
+</script>
+{% endblock %} 

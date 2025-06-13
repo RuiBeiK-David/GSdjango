@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}设备管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">设备管理</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
+            <i class="fas fa-plus"></i> 添加新设备
+        </button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th scope="col">设备ID</th>
+                <th scope="col">名称</th>
+                <th scope="col">类型</th>
+                <th scope="col">最后上线时间</th>
+                <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.device_id }}</td>
+                <td>{{ device.name }}</td>
+                <td>{{ device.device_type }}</td>
+                <td>{{ device.last_seen|timesince }} ago</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary">编辑</button>
+                    <button class="btn btn-sm btn-outline-danger">删除</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">没有找到任何设备。</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Device Modal -->
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addDeviceModalLabel">添加新设备</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addDeviceForm">
+          <div class="mb-3">
+            <label for="deviceName" class="form-label">设备名称</label>
+            <input type="text" class="form-control" id="deviceName" required>
+          </div>
+          <div class="mb-3">
+            <label for="deviceType" class="form-label">设备类型</label>
+            <input type="text" class="form-control" id="deviceType" placeholder="例如：心率监测器" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" onclick="addDevice()">保存设备</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

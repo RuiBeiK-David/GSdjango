@@ -1,0 +1,1058 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Homepage - Intelligent Monitoring Platform</title>
+  <link rel="icon" href="../src/icon.svg" type="image/x-icon">
+  <link rel="stylesheet" href="../css/bootstrap-5.1.3/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <link rel="stylesheet" href="../css/message.min.css">
+  <link rel="stylesheet" href="../css/home.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85)), url('../src/background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+    .profile-section {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 40px;
+      position: relative;
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 32px rgba(13, 110, 253, 0.15);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .profile-header:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(13, 110, 253, 0.2);
+    }
+    .profile-avatar {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .profile-avatar img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border: 5px solid white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    .profile-avatar img:hover {
+      transform: scale(1.05) translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+    .change-avatar-btn {
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 0.9em;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      color: #0d6efd;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 1;
+    }
+    .change-avatar-btn:hover {
+      background: white;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      color: #0099ff;
+    }
+    .change-avatar-btn i {
+      font-size: 1.1em;
+    }
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      margin-top: 30px;
+      padding: 25px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stat-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .stat-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-5px);
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .stat-label {
+      font-size: 1rem;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+    .quick-action-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 15px 30px;
+      border-radius: 30px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      min-width: 180px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .quick-action-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .profile-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin: 40px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .profile-tab {
+      padding: 15px 25px;
+      text-align: center;
+      background: white;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .profile-tab.active {
+      background: #0d6efd;
+      color: white;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+    .profile-tab:hover:not(.active) {
+      background: #f8f9fa;
+      transform: translateY(-2px);
+    }
+    .profile-info-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .info-header {
+      background: #0d6efd;
+      color: white;
+      padding: 25px 40px;
+      font-size: 1.2em;
+      font-weight: 500;
+    }
+    .info-body {
+      padding: 40px;
+    }
+    .info-item {
+      padding: 25px;
+      margin-bottom: 25px;
+      border-radius: 15px;
+      background: white;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+    .info-item:hover {
+      transform: translateX(10px);
+      box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+    }
+    .info-label {
+      min-width: 140px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .info-value {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      margin-right: 8px;
+    }
+    .activity-item {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 25px;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    .activity-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .activity-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+      color: white;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4em;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    }
+    .activity-details {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .activity-details > div:first-child {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .activity-time {
+      color: #6c757d;
+      font-size: 0.9em;
+    }
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .verification-badge:hover {
+      background: rgba(25, 135, 84, 0.2);
+      transform: translateY(-2px);
+    }
+    .profile-completion {
+      margin-top: 25px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .profile-completion span {
+      color: #0d6efd;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .completion-bar {
+      height: 12px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      margin-top: 12px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .completion-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff87 0%, #60efff 100%);
+      border-radius: 6px;
+      transition: width 0.8s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-edit {
+      padding: 15px 30px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+      border: none;
+      color: white;
+      font-weight: 500;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+      transition: all 0.3s ease;
+      min-width: 160px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .btn-edit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
+    }
+    .additional-info {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      margin: 30px 0;
+    }
+    @media (max-width: 992px) {
+      .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .profile-tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+      .profile-quick-actions {
+        flex-direction: column;
+      }
+      .quick-action-btn {
+        width: 100%;
+      }
+      .info-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+    @media (max-width: 576px) {
+      .profile-stats {
+        grid-template-columns: 1fr;
+      }
+      .profile-tabs {
+        grid-template-columns: 1fr;
+      }
+      .profile-header,
+      .info-body,
+      .additional-info {
+        padding: 20px;
+      }
+    }
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+      transform: rotate(45deg);
+      animation: shimmer 8s infinite linear;
+    }
+    @keyframes shimmer {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .completion-progress::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      animation: shine 2s infinite;
+    }
+    @keyframes shine {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(100%);
+      }
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .profile-quick-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .info-grid .info-item {
+      height: 100px;
+      padding: 20px 25px;
+      margin-bottom: 0;
+      background: #f8f9fa;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .info-grid .info-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+      background: white;
+    }
+    .info-grid .info-label {
+      min-width: 120px;
+      font-size: 0.95rem;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .info-grid .info-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      margin: 0;
+    }
+
+    .activity-log h5 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+      color: #212529;
+    }
+
+    .activity-details > div:first-child {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #212529;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 1400px) {
+      .profile-section {
+        max-width: 1000px;
+      }
+    }
+    @media (max-width: 1200px) {
+      .holyGrail-content {
+        width: calc(100% - 200px);
+        margin-left: 200px;
+      }
+      .profile-section {
+        padding: 20px;
+      }
+    }
+    @media (max-width: 992px) {
+      .holyGrail-content {
+        width: calc(100% - 150px);
+        margin-left: 150px;
+      }
+      .info-item {
+        grid-template-columns: 200px 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .holyGrail-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 15px;
+      }
+      .profile-section {
+        padding: 15px;
+      }
+      .activity-item {
+        grid-template-columns: 50px 1fr;
+        gap: 20px;
+      }
+      .activity-icon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    .edit-profile-form {
+      display: none;
+      margin-top: 30px;
+      padding: 30px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .edit-profile-form .form-label {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+
+    .edit-profile-form .form-control,
+    .edit-profile-form .form-select {
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      padding: 12px 15px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .edit-profile-form .form-control:focus,
+    .edit-profile-form .form-select:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-buttons {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      justify-content: flex-start;
+    }
+
+    .form-buttons button {
+      min-width: 120px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .form-buttons button:hover {
+      transform: translateY(-2px);
+    }
+
+    .form-buttons button i {
+      font-size: 1.1em;
+    }
+
+    #phoneNumCheckSpan,
+    #idNumCheckSpan {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.85rem;
+    }
+
+    .verification-badge {
+      background: rgba(25, 135, 84, 0.1);
+      color: #198754;
+      border-radius: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .verification-badge i {
+      color: #198754;
+    }
+
+    .profile-tab {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-tab::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: #0d6efd;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .profile-tab:hover::after {
+      width: 100%;
+    }
+
+    .profile-tab.active::after {
+      width: 100%;
+      background: white;
+    }
+
+    .activity-icon {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .activity-icon::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite linear;
+    }
+
+    .quick-action-btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .quick-action-btn:hover i {
+      transform: scale(1.2);
+    }
+
+    .stat-item {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .stat-item:hover::after {
+      transform: translateX(100%);
+    }
+
+    .profile-avatar img {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+
+    .profile-avatar:hover img {
+      animation: avatarPulse 1s ease-in-out;
+    }
+
+    @keyframes avatarPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+
+<body class="holyGrail">
+  <header class="shadow nav_flex">
+    <div class="logo toggle-width">
+      <a href="../index.html" class="d-flex align-items-center justify-content-center mb-2 mb-lg-0 text-dark text-decoration-none" style="margin: auto;">
+        <object data="../src/icon.svg" class="bi me-2" width="40" height="32" role="img"></object>
+        <span class="fs-4 side_collapse">Home</span>
+      </a>
+    </div>
+    <a role="button" onclick="toggleSide()">
+      <i class="bi me-2 fa fa-navicon" style="color: black; font-size:1.5rem; padding-left: 15px;"></i>
+    </a>
+    <div class="dropdown text-end avartar loginTrue">
+      <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="../src/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+      </a>
+      <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+        <li><a class="dropdown-item" href="./dashboard.html">Dashboard</a></li>
+        <li><a class="dropdown-item" href="../settings.html">Settings</a></li>
+        <li><a class="dropdown-item" href="./index.html">Profile</a></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item" href="javascript:void(0);" onclick="logOut()">Log Out</a></li>
+      </ul>
+    </div>
+    <hr>
+  </header>
+  <div class="holyGrail-Body">
+    <nav class="holyGrail-nav side_flex toggle-width">
+      <hr>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link link-dark" aria-current="page">
+            <i class="bi me-2 fa fa-home"></i>
+            <span class="side_collapse">Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="./index.html" class="nav-link link-dark active fix">
+            <i class="bi me-2 fa fa-user-circle-o"></i>
+            <span class="side_collapse">Personal Info</span>
+          </a>
+        </li>
+        <li>
+          <a href="./index2.html" class="nav-link link-dark">
+            <i class="bi me-2 fa fa-dashboard"></i>
+            <span class="side_collapse">Monitoring Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="./index3.html" class="nav-link link-dark">
+            <i class="bi me-2 fa fa-bar-chart"></i>
+            <span class="side_collapse">Orders</span>
+          </a>
+        </li>
+        <li>
+          <a href="./index4.html" class="nav-link link-dark">
+            <i class="bi me-2 fa fa-plus-square-o"></i>
+            <span class="side_collapse">Emergency Contacts</span>
+          </a>
+        </li>
+      </ul>
+      <hr>
+      <div class="nav-link link-dark">
+        <i class="bi me-2 fa fa-cog" style="font-size:1.5rem;"></i>
+      </div>
+    </nav>
+    <main class="holyGrail-content">
+      <div class="user-info d-flex justify-content-start align-items-baseline">
+        <div class="profile-section">
+          <div class="container">
+            <div class="profile-header">
+              <div class="row align-items-center">
+                <div class="col-md-4">
+                  <div class="profile-avatar">
+                    <img id="userAvatar" src="../src/pp.png" alt="User Avatar">
+                    <input type="file" id="uploadAvatar" accept="image/png" style="display: none;" onchange="uploadAvatar()">
+                    <button class="change-avatar-btn" onclick="document.getElementById('uploadAvatar').click()">
+                      <i class="fa fa-camera"></i> Change Avatar
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <h2 id="profileName" class="mb-2">Nice to see you, <span id="userName"></span></h2>
+                  <p class="mb-0"><span id="userEmail"></span></p>
+                  <div class="profile-completion">
+                    <div class="d-flex justify-content-between">
+                      <span>Profile Completion</span>
+                      <span>85%</span>
+                    </div>
+                    <div class="completion-bar">
+                      <div class="completion-progress" style="width: 85%"></div>
+                    </div>
+                  </div>
+                  <div class="profile-quick-actions">
+                    <button class="quick-action-btn">
+                      <i class="fa fa-bell"></i> Notifications
+                    </button>
+                    <button class="quick-action-btn">
+                      <i class="fa fa-cog"></i> Settings
+                    </button>
+                    <button class="quick-action-btn">
+                      <i class="fa fa-download"></i> Download Data
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-stats">
+                <div class="stat-item">
+                  <div class="stat-value">24</div>
+                  <div class="stat-label">Monitoring Days</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">98%</div>
+                  <div class="stat-label">Health Score</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">5</div>
+                  <div class="stat-label">Connected Devices</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">3</div>
+                  <div class="stat-label">Emergency Contacts</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-tabs">
+              <div class="profile-tab active">Personal Info</div>
+              <div class="profile-tab">Health Records</div>
+              <div class="profile-tab">Device Settings</div>
+              <div class="profile-tab">Security</div>
+            </div>
+
+            <div class="profile-info-card">
+              <div class="info-header">
+                <i class="fa fa-user-circle-o me-2"></i>Personal Information
+              </div>
+              <div class="info-body">
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-user info-icon"></i>Full Name
+                  </div>
+                  <div class="info-value" id="name"></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-venus-mars info-icon"></i>Gender
+                  </div>
+                  <div class="info-value" id="gender"></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-phone info-icon"></i>Phone Number
+                    <span class="verification-badge"><i class="fa fa-check-circle"></i> Verified</span>
+                  </div>
+                  <div class="info-value" id="phone_number"></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-address-card info-icon"></i>ID Number
+                    <span class="verification-badge"><i class="fa fa-check-circle"></i> Verified</span>
+                  </div>
+                  <div class="info-value" id="id_number"></div>
+                </div>
+                
+                <div class="form-buttons">
+                  <button class="btn btn-primary btn-edit" type="button" id="btn_edit_profile">
+                    <i class="fa fa-pencil"></i> Edit Profile
+                  </button>
+                </div>
+
+                <div class="edit-profile-form" id="editProfileForm">
+                  <form id="formEditProfile" onsubmit="return false;">
+                    <div class="mb-3">
+                      <label for="edit_name" class="form-label">Full Name</label>
+                      <input type="text" class="form-control" id="edit_name" name="edit_name" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="edit_gender" class="form-label">Gender</label>
+                      <select class="form-select" id="edit_gender" name="edit_gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="edit_phone_number" class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="edit_phone_number" name="edit_phone_number" onblur="phoneNumCheck()" required>
+                      <span id="phoneNumCheckSpan" style="color: red"></span>
+                    </div>
+                    <div class="mb-3">
+                      <label for="edit_id_number" class="form-label">ID Number</label>
+                      <input type="text" class="form-control" id="edit_id_number" name="edit_id_number" onblur="idNumCheck()" required>
+                      <span id="idNumCheckSpan" style="color: red"></span>
+                    </div>
+                    <div class="form-buttons">
+                      <button class="btn btn-secondary me-2" type="button" id="btn_cancel_profile">Cancel</button>
+                      <button class="btn btn-primary" type="button" id="btn_submit_profile">Save Changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="additional-info">
+              <h4 class="mb-4">Additional Information</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-heartbeat info-icon"></i>Blood Type
+                  </div>
+                  <div class="info-value">A+</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-hospital-o info-icon"></i>Primary Hospital
+                  </div>
+                  <div class="info-value">Tianjin Central Hospital</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-medkit info-icon"></i>Allergies
+                  </div>
+                  <div class="info-value">None</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fa fa-user-md info-icon"></i>Primary Doctor
+                  </div>
+                  <div class="info-value">Dr. Wang</div>
+                </div>
+              </div>
+
+              <div class="activity-log">
+                <h5 class="mb-3">Recent Activities</h5>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fa fa-heartbeat"></i>
+                  </div>
+                  <div class="activity-details">
+                    <div>Blood pressure measurement recorded</div>
+                    <div class="activity-time">Today, 10:30 AM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fa fa-user-md"></i>
+                  </div>
+                  <div class="activity-details">
+                    <div>Scheduled appointment with Dr. Wang</div>
+                    <div class="activity-time">Yesterday, 2:15 PM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fa fa-pills"></i>
+                  </div>
+                  <div class="activity-details">
+                    <div>Medication reminder updated</div>
+                    <div class="activity-time">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer></footer>
+
+    <script src="../js/jquery-3.6.4.min.js"></script>
+    <script src="../js/jquery.cookie-1.4.1.js"></script>
+    <script src="../js/bootstrap-5.1.3/bootstrap.bundle.min.js"></script>
+    <script src="../js/message.min.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/home.js"></script>
+    <script>
+      function uploadAvatar() {
+          const fileInput = document.getElementById('uploadAvatar');
+          const file = fileInput.files[0];
+          
+          if (file && file.type === 'image/png') {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                  // Update avatar display
+                  document.getElementById('userAvatar').src = e.target.result;
+
+                  // 这里可以添加代码将文件保存为 pp.png Here can add code to save the file as pp.png
+                  // 由于浏览器的安全限制，无法直接保存文件到本地 Due to browser security restrictions, files cannot be saved directly to the local computer.
+                  // 需要使用端服务来处理文件上传 Need to use end service to handle file upload
+              };
+              reader.readAsDataURL(file);
+          } else {
+              alert('Please upload an image in PNG format');
+          }
+      }
+
+      function logOut() {
+          // 清除登录状态 Clear login status
+          localStorage.removeItem('isLoggedIn');
+          // 返回主页 Back to Home
+          window.location.href = '../index.html';
+      }
+
+      // 添加编辑表单的显示/隐藏逻辑 Add show/hide logic for the edit form
+      document.getElementById('btn_edit_profile').addEventListener('click', function() {
+          document.getElementById('editProfileForm').style.display = 'block';
+          this.style.display = 'none';
+          
+          // Fill in personal information form data
+          document.getElementById('edit_name').value = document.getElementById('name').innerText;
+          document.getElementById('edit_gender').value = document.getElementById('gender').innerText;
+          document.getElementById('edit_phone_number').value = document.getElementById('phone_number').innerText;
+          document.getElementById('edit_id_number').value = document.getElementById('id_number').innerText;
+      });
+
+      document.getElementById('btn_cancel_profile').addEventListener('click', function() {
+          document.getElementById('editProfileForm').style.display = 'none';
+          document.getElementById('btn_edit_profile').style.display = 'block';
+      });
+
+      document.getElementById('btn_submit_profile').addEventListener('click', function() {
+          // 这里添加保存逻辑 Add save logic here
+          document.getElementById('name').innerText = document.getElementById('edit_name').value;
+          document.getElementById('gender').innerText = document.getElementById('edit_gender').value;
+          document.getElementById('phone_number').innerText = document.getElementById('edit_phone_number').value;
+          document.getElementById('id_number').innerText = document.getElementById('edit_id_number').value;
+          
+          document.getElementById('editProfileForm').style.display = 'none';
+          document.getElementById('btn_edit_profile').style.display = 'block';
+      });
+    </script>
+</body>
+
+</html>

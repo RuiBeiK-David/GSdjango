@@ -1,0 +1,352 @@
+<html><head><base href="/" />
+<meta charset="UTF-8">
+<title>Emergency Contacts - Healthcare Monitoring System</title>
+<style>
+:root {
+  --primary: #4A90E2;
+  --success: #28a745;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+}
+
+.tab.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  margin-bottom: -2px;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.contact-card {
+  background: var(--light);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.add-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--primary);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(74,144,226,0.3);
+  transition: transform 0.2s;
+}
+
+.add-button:hover {
+  transform: scale(1.1);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.medical-history {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Emergency Contacts</h1>
+  
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('family')">Family Members</button>
+    <button class="tab" onclick="switchTab('medical')">Medical Staff</button>
+  </div>
+
+  <div id="family-contacts" class="contact-list">
+    <!-- Family contacts will be dynamically loaded here -->
+  </div>
+
+  <div id="medical-contacts" class="contact-list" style="display: none;">
+    <!-- Medical staff contacts will be dynamically loaded here -->
+  </div>
+
+  <button class="add-button" onclick="showAddModal()">+</button>
+</div>
+
+<!-- Add/Edit Contact Modal -->
+<div id="contact-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="modal-title">Add New Contact</h2>
+    <form id="contact-form">
+      <div class="form-group">
+        <label>Contact Type</label>
+        <select id="contact-type" onchange="toggleMedicalFields()">
+          <option value="family">Family Member</option>
+          <option value="medical">Medical Staff</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="phone" required>
+      </div>
+
+      <div class="form-group family-field">
+        <label>Relationship</label>
+        <input type="text" id="relationship">
+      </div>
+
+      <div id="medical-fields" style="display: none;">
+        <div class="form-group">
+          <label>Institution</label>
+          <input type="text" id="institution">
+        </div>
+
+        <div class="form-group">
+          <label>Role</label>
+          <select id="role">
+            <option value="doctor">Primary Doctor</option>
+            <option value="nurse">Nurse</option>
+            <option value="admin">Administrative Staff</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Specialization</label>
+          <input type="text" id="specialization">
+        </div>
+
+        <div class="form-group">
+          <label>Medical History</label>
+          <textarea id="medical-history" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn btn-danger" onclick="hideModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+let contacts = {
+  family: [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      phone: "+1 (555) 123-4567",
+      relationship: "Daughter"
+    },
+    {
+      id: 2,
+      name: "Michael Johnson",
+      phone: "+1 (555) 234-5678",
+      relationship: "Son"
+    }
+  ],
+  medical: [
+    {
+      id: 3,
+      name: "Dr. Emily Wilson",
+      phone: "+1 (555) 345-6789",
+      institution: "Central Hospital",
+      role: "Primary Doctor",
+      specialization: "Cardiology",
+      medicalHistory: "Regular check-ups since 2020\nDiagnosed hypertension in 2021\nPrescribed medication: Beta blockers"
+    }
+  ]
+};
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  
+  document.getElementById('family-contacts').style.display = tab === 'family' ? 'grid' : 'none';
+  document.getElementById('medical-contacts').style.display = tab === 'medical' ? 'grid' : 'none';
+  
+  renderContacts();
+}
+
+function renderContacts() {
+  const familyList = document.getElementById('family-contacts');
+  const medicalList = document.getElementById('medical-contacts');
+  
+  familyList.innerHTML = contacts.family.map(contact => `
+    <div class="contact-card">
+      <h3>${contact.name}</h3>
+      <p><strong>Phone:</strong> ${contact.phone}</p>
+      <p><strong>Relationship:</strong> ${contact.relationship}</p>
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="editContact('family', ${contact.id})">Edit</button>
+        <button class="btn btn-danger" onclick="deleteContact('family', ${contact.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  medicalList.innerHTML = contacts.medical.map(contact => `
+    <div class="contact-card">
+      <h3>${contact.name}</h3>
+      <p><strong>Phone:</strong> ${contact.phone}</p>
+      <p><strong>Institution:</strong> ${contact.institution}</p>
+      <p><strong>Role:</strong> ${contact.role}</p>
+      <p><strong>Specialization:</strong> ${contact.specialization}</p>
+      <div class="medical-history">
+        <strong>Medical History:</strong><br>
+        ${contact.medicalHistory.replace(/\n/g, '<br>')}
+      </div>
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="editContact('medical', ${contact.id})">Edit</button>
+        <button class="btn btn-danger" onclick="deleteContact('medical', ${contact.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showAddModal() {
+  document.getElementById('contact-modal').style.display = 'block';
+  document.getElementById('modal-title').textContent = 'Add New Contact';
+  document.getElementById('contact-form').reset();
+}
+
+function hideModal() {
+  document.getElementById('contact-modal').style.display = 'none';
+}
+
+function toggleMedicalFields() {
+  const type = document.getElementById('contact-type').value;
+  const medicalFields = document.getElementById('medical-fields');
+  const familyFields = document.querySelectorAll('.family-field');
+  
+  medicalFields.style.display = type === 'medical' ? 'block' : 'none';
+  familyFields.forEach(field => field.style.display = type === 'family' ? 'block' : 'none');
+}
+
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  // Add form submission logic here
+  hideModal();
+  renderContacts();
+});
+
+// Initial render
+renderContacts();
+</script>
+</body>
+</html>

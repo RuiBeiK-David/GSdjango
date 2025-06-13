@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>User Profile</h2>
+    <div class="card">
+        <div class="card-body">
+            <form id="profileForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ user.profile.name }}">
+                </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="Male" {% if user.profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if user.profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if user.profile.gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.profile.phone_number }}">
+                </div>
+                <div class="mb-3">
+                    <label for="id_number" class="form-label">ID Number</label>
+                    <input type="text" class="form-control" id="id_number" name="id_number" value="{{ user.profile.id_number }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+             <h5 class="card-title">API Token</h5>
+            <p><strong>Your API Token:</strong> <code id="api-token">{{ token }}</code> <button class="btn btn-sm btn-secondary" id="toggle-token">Show/Hide</button></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Save token to localStorage
+const apiToken = "{{ token }}";
+if (apiToken) {
+    localStorage.setItem('apiToken', apiToken);
+}
+
+// Handle form submission
+$('#profileForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        email: $('#email').val(),
+        profile: {
+            name: $('#name').val(),
+            gender: $('#gender').val(),
+            phone_number: $('#phone_number').val(),
+            id_number: $('#id_number').val()
+        }
+    };
+
+    $.ajax({
+        url: '/api/profile/',
+        method: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Token ' + apiToken,
+            'X-CSRFToken': '{{ csrf_token }}' 
+        },
+        success: function(response) {
+            Qmsg.success('Profile updated successfully!');
+        },
+        error: function(xhr) {
+            Qmsg.error('Failed to update profile. ' + xhr.responseText);
+        }
+    });
+});
+
+
+// Toggle token visibility
+document.getElementById('toggle-token').addEventListener('click', function() {
+    var tokenElement = document.getElementById('api-token');
+    if (tokenElement.style.display === 'none') {
+        tokenElement.style.display = 'inline';
+        this.textContent = 'Hide';
+    } else {
+        tokenElement.style.display = 'none';
+        this.textContent = 'Show';
+    }
+});
+// Initially hide the token
+document.getElementById('api-token').style.display = 'none';
+</script>
+{% endblock %} 

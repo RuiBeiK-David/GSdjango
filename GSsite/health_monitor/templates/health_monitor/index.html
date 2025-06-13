@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}健康监控系统 - 主页{% endblock %}
+
+{% block extra_css %}
+<style>
+    .loginFalse { display: block; }
+    .loginTrue { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Home Page Background Section (首页背景) -->
+<div class="bg_section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="index_title">健康<br><span style="color: #151515;">监控系统</span></h1>
+                <p class="index_text">一个简单的实时健康监控平台，关注您家人的健康。</p>
+                <p class="index_text">由天津理工大学团队开发，这是一个可以自动监控被照护者各项身体指标的健康管理信息平台，帮助您和医疗机构实时获取家中老人或患者的健康信息，解决因工作繁忙而忽视老人健康的问题！</p>
+            </div>
+            <div class="col-md-6">
+                <div class="bg_image"><img src="{% static 'src/img-1.png' %}" alt="健康监控"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 实时数据展示区域 -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">实时健康数据</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">心率监测</h5>
+                    <div id="heartRateChart" class="chart-container"></div>
+                    <p class="card-text mt-3">当前心率：<span id="currentHeartRate">--</span> BPM</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">血压监测</h5>
+                    <div id="bloodPressureChart" class="chart-container"></div>
+                    <p class="card-text mt-3">当前血压：<span id="currentBloodPressure">--/--</span> mmHg</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">体温监测</h5>
+                    <div id="temperatureChart" class="chart-container"></div>
+                    <p class="card-text mt-3">当前体温：<span id="currentTemperature">--</span> °C</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 健康警报区域 -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">健康警报</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>设备</th>
+                                    <th>类型</th>
+                                    <th>详情</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertsTableBody">
+                                <!-- 警报数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+    // WebSocket连接
+    const ws = new WebSocket(
+        'ws://' + window.location.host + '/ws/health_data/'
+    );
+
+    ws.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        updateCharts(data);
+        updateAlerts(data.alerts);
+    };
+
+    // 初始化图表
+    function initializeCharts() {
+        // 心率图表
+        const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+        window.heartRateChart = new Chart(heartRateCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '心率',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 血压图表
+        const bloodPressureCtx = document.getElementById('bloodPressureChart').getContext('2d');
+        window.bloodPressureChart = new Chart(bloodPressureCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '收缩压',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }, {
+                    label: '舒张压',
+                    data: [],
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 体温图表
+        const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+        window.temperatureChart = new Chart(temperatureCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '体温',
+                    data: [],
+                    borderColor: 'rgb(255, 159, 64)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 35,
+                        max: 42
+                    }
+                }
+            }
+        });
+    }
+
+    // 更新图表数据
+    function updateCharts(data) {
+        const timestamp = new Date().toLocaleTimeString();
+
+        // 更新心率数据
+        updateChart(window.heartRateChart, timestamp, data.heart_rate);
+        document.getElementById('currentHeartRate').textContent = data.heart_rate;
+
+        // 更新血压数据
+        updateChart(window.bloodPressureChart, timestamp, [data.systolic, data.diastolic]);
+        document.getElementById('currentBloodPressure').textContent = `${data.systolic}/${data.diastolic}`;
+
+        // 更新体温数据
+        updateChart(window.temperatureChart, timestamp, data.temperature);
+        document.getElementById('currentTemperature').textContent = data.temperature;
+    }
+
+    // 更新单个图表
+    function updateChart(chart, label, data) {
+        chart.data.labels.push(label);
+        if (Array.isArray(data)) {
+            data.forEach((value, index) => {
+                chart.data.datasets[index].data.push(value);
+            });
+        } else {
+            chart.data.datasets[0].data.push(data);
+        }
+
+        // 保持最新的10个数据点
+        if (chart.data.labels.length > 10) {
+            chart.data.labels.shift();
+            chart.data.datasets.forEach(dataset => {
+                dataset.data.shift();
+            });
+        }
+
+        chart.update();
+    }
+
+    // 更新警报表格
+    function updateAlerts(alerts) {
+        const tbody = document.getElementById('alertsTableBody');
+        tbody.innerHTML = '';
+
+        alerts.forEach(alert => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${new Date(alert.timestamp).toLocaleString()}</td>
+                <td>${alert.device}</td>
+                <td>${alert.type}</td>
+                <td>${alert.details}</td>
+                <td><span class="badge bg-${alert.status === 'active' ? 'danger' : 'success'}">${alert.status}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 页面加载完成后初始化图表
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+    });
+</script>
+{% endblock %} 

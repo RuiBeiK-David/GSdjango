@@ -1,0 +1,364 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Intelligent Monitoring Platform</title>
+    <link rel="icon" href="{% static 'src/icon.svg' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-5.1.3/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/message.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <style>
+        .loginFalse { display: block; }
+        .loginTrue { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar (导航栏) -->
+    <div class="container">
+        <header class="p-3 mb-3 border-bottom">
+            <div class="container">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                    <a href="{% url 'home:index' %}" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+                        <object data="{% static 'src/icon.svg' %}" class="bi me-2" width="40" height="32" role="img"></object>
+                    </a>
+
+                    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(homeIndexUrl)" class="nav-link px-2 link-dark">Information Display</a></li>
+                        <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(dashboardUrl)" class="nav-link px-2 link-dark">Dashboard</a></li>
+                        <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(homeAboutUrl)" class="nav-link px-2 link-dark">About</a></li>
+                        <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(loginUserUrl)" class="nav-link px-2 link-dark">Switch Role</a></li>
+                    </ul>
+                    <!-- Login and Register Buttons when not logged in (未登陆时的注册与登录按钮) -->
+                    <div class="col-md-3 text-end loginFalse" id="loginButtons">
+                        <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                    </div>
+                    <!-- Avatar and Dropdown Menu after login (登录后变为头像与下拉菜单) -->
+                    <div class="dropdown text-end loginTrue" id="loginDropdown" style="display: none;">
+                        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{% static 'src/mdo.png' %}" alt="mdo" width="32" height="32" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'home:settings' %}">Settings</a></li>
+                            <li><a class="dropdown-item" href="{% url 'get_user_profile' %}">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="logout()">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- Home Page Background Section (首页背景) -->
+    <div class="bg_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1 class="index_title">Health<br><span style="color: #151515;">Monitoring System</span></h1>
+                    <p class="index_text">A simple real-time health monitoring platform that cares for your family's health.</p>
+                    <p class="index_text">Developed by the team of Tianjin Polytechnic University, this is a health management information platform that can automatically monitor various physical indicators of the cared-for person, helping you and medical institutions to obtain the health information of elderly people or patients at home in real time, solving the problem of neglecting the health of elders due to busy work!</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg_image"><img src="{% static 'src/img-1.png' %}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal (注册模态框) -->
+    <div class="modal fade" id="registerModal">
+        <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header (模态框头部) -->
+            <div class="modal-header">
+            <h4 class="modal-title">User Registration</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal Body (模态框内容) -->
+            <div class="modal-body">
+                <form id="formRegister" onsubmit="return false;">
+                    <h3>User Information</h3>
+                    <div class="mb-3 mt-3">
+                        <label for="userName" class="form-label">Username:</label>
+                        <input type="text" class="form-control" id="userName" placeholder="Enter Username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPassword" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="userPassword" placeholder="Enter Password" name="password" onblur="passwordCheck()" required>
+                        <span id="passwordCheckSpan" style="color: red"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPasswordConfirm" class="form-label">Confirm Password:</label>
+                        <input type="password" class="form-control" id="userPasswordConfirm" placeholder="Confirm Password" onblur="passwordConfirm()" required>
+                        <span id="passwordConfirmSpan" style="color: red"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="Enter Email" name="email" onblur="emailCheck()" required>
+                        <span id="emailCheckSpan" style="color: red"></span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer (模态框底部) -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="registerButton">Register</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="registerModalDismiss">Close</button>
+            </div>
+
+        </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (登录模态框) -->
+    <div class="modal fade" id="loginModal">
+        <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header (模态框头部) -->
+            <div class="modal-header">
+            <h4 class="modal-title">User Login</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal Body (模态框内容) -->
+            <div class="modal-body">
+                <form id="formLogin" onsubmit="return false;">
+                    <div class="mb-3">
+                        <label for="loginAccount" class="form-label">Username or Email:</label>
+                        <input type="text" class="form-control" id="loginAccount" name="account" placeholder="Enter Username or Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter Password" required>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer (模态框底部) -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="loginButton">Login</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="loginModalDismiss">Close</button>
+            </div>
+
+        </div>
+        </div>
+    </div>
+    <script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+    <script src="{% static 'js/jquery.cookie-1.4.1.js' %}"></script>
+    <script src="{% static 'js/bootstrap-5.1.3/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/message.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/index.js' %}"></script>
+    <script>
+        const homeIndexUrl = "{% url 'home:index' %}";
+        const dashboardUrl = "{% url 'dashboard' %}";
+        const homeAboutUrl = "{% url 'home:about' %}";
+        const homeSettingsUrl = "{% url 'home:settings' %}";
+        const getUserProfileUrl = "{% url 'get_user_profile' %}";
+        const loginUserUrl = "{% url 'login_user' %}";
+        const logoutUserUrl = "{% url 'logout_user' %}";
+        const registerUserUrl = "{% url 'register_user' %}";
+
+        // 检查登录状态并导航 Check login status and navigate
+        function checkLoginAndNavigate(url) {
+            // TODO: Modify to check Django authentication status
+            const authToken = localStorage.getItem('authToken'); // Check for authToken
+            // const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (authToken) { // Check if authToken exists
+                window.location.href = url;
+            } else {
+                alert('Please login first to access this feature.');
+                // Redirect to the index page (which has the login modal)
+                window.location.href = homeIndexUrl; // Redirect instead of showing modal directly from any page
+            }
+        }
+
+        // TODO: Modify these event listeners to interact with Django authentication views/APIs
+        document.getElementById('loginButton').addEventListener('click', function() {
+            // alert('Login successful!'); // Placeholder - replace with actual login logic
+            const account = $('#loginAccount').val();
+            const password = $('#loginPassword').val();
+
+            $.ajax({
+                url: loginUserUrl, // Use the Django URL constant
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    account: account,
+                    password: password
+                }),
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                success: function(response) {
+                    // Assuming backend returns a JSON object like { "token": "..." }
+                    if (response.token) {
+                        localStorage.setItem('authToken', response.token); // Store the token
+                        localStorage.setItem('isLoggedIn', 'true'); // Keep this for simple state tracking if needed
+                        $.message({
+                            message: 'Login successful!',
+                            type: 'success'
+                        });
+                        // Update UI to show dropdown and hide buttons
+                        document.getElementById('loginButtons').style.display = 'none';
+                        document.getElementById('loginDropdown').style.display = 'block';
+                        $('#loginModalDismiss').click(); // Close the modal
+                        // Optional: Redirect to dashboard or a protected page
+                        // window.location.href = dashboardUrl; // Uncomment if direct redirection is desired
+                    } else {
+                         $.message({
+                            message: 'Login failed: No token received.',
+                            type: 'error'
+                        });
+                        console.error('Login error: No token received.', response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = 'Login failed.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
+                    $.message({
+                        message: errorMessage,
+                        type: 'error'
+                    });
+                    console.error('Login error:', error);
+                }
+            });
+        });
+
+        document.getElementById('registerButton').addEventListener('click', function() {
+            // alert('Registration successful!'); // Placeholder - replace with actual registration logic
+            const username = $('#userName').val();
+            const password = $('#userPassword').val();
+            const email = $('#userEmail').val();
+
+            $.ajax({
+                url: registerUserUrl, // Use the Django URL constant
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: username,
+                    password: password,
+                    email: email
+                }),
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Use the getCookie function defined in dashboard.html or main.js
+                },
+                success: function(response) {
+                    $.message({
+                        message: 'Registration successful!',
+                        type: 'success'
+                    });
+                    // Optionally, automatically log in the user after registration
+                    // Or redirect to login modal
+                    $('#registerModalDismiss').click(); // Close the modal
+                    // Open login modal
+                    $('#loginModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = 'Registration failed.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
+                    $.message({
+                        message: errorMessage,
+                        type: 'error'
+                    });
+                    console.error('Registration error:', error);
+                }
+            });
+        });
+
+        function logout() {
+            // 重置登录状态 Reset login status // TODO: Modify to interact with Django logout view/API
+            const authToken = localStorage.getItem('authToken');
+
+            if (authToken) {
+                $.ajax({
+                    url: logoutUserUrl, // Use the Django URL constant
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Token ' + authToken, // Include the token in the header
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    success: function(response) {
+                        $.message({
+                            message: 'Logout successful!',
+                            type: 'success'
+                        });
+                        // Clear the token and update UI state
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('isLoggedIn'); // Clear this simple flag as well
+
+                        document.getElementById('loginButtons').style.display = 'block';
+                        document.getElementById('loginDropdown').style.display = 'none';
+
+                        // Redirect to home page
+                        window.location.href = homeIndexUrl;
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Logout failed.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        } else if (xhr.responseText) {
+                             errorMessage = xhr.responseText;
+                        }
+                        $.message({
+                            message: errorMessage,
+                            type: 'error'
+                        });
+                        console.error('Logout error:', error);
+                        // Even if logout fails on server, clear client-side token for security
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('isLoggedIn');
+                        document.getElementById('loginButtons').style.display = 'block';
+                        document.getElementById('loginDropdown').style.display = 'none';
+                        window.location.href = homeIndexUrl;
+                    }
+                });
+            } else {
+                // If no token exists, just update UI and redirect
+                localStorage.removeItem('isLoggedIn'); // Clear this simple flag
+                document.getElementById('loginButtons').style.display = 'block';
+                document.getElementById('loginDropdown').style.display = 'none';
+                window.location.href = homeIndexUrl;
+            }
+        }
+
+        // Initial state setup
+        document.addEventListener("DOMContentLoaded", function() {
+            // TODO: Modify to check Django authentication status
+            const authToken = localStorage.getItem('authToken'); // Check for authToken
+            // const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (authToken) { // Check if authToken exists
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('loginDropdown').style.display = 'block';
+            } else {
+                document.getElementById('loginButtons').style.display = 'block';
+                document.getElementById('loginDropdown').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

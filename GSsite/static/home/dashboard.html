@@ -1,0 +1,394 @@
+{% load static %}
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Homepage - Intelligent Monitoring Platform</title>
+  <link rel="icon" href="{% static 'src/icon.svg' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'css/bootstrap-5.1.3/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <link rel="stylesheet" href="{% static 'css/message.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {# Chart.js might be needed for charts #}
+</head>
+
+<body class="holyGrail">
+  {% csrf_token %} {# Add CSRF token for AJAX requests #}
+  <!-- Holy Grail Layout (圣杯布局) -->
+  <!-- Top Navigation Bar (顶部导航栏) -->
+  <header class="shadow nav_flex">
+    <!-- Logo and Title (logo与标题) -->
+    <div class="logo toggle-width">
+      <a href="{% url 'dashboard' %}" class="d-flex align-items-center justify-content-center mb-2 mb-lg-0 text-dark text-decoration-none" style="margin: auto;">
+        <object data="{% static 'src/icon.svg' %}" class="bi me-2" width="40" height="32" role="img"></object>
+        <span class="fs-4 side_collapse">Home</span>
+      </a>
+    </div>
+    <!-- Toggle Button (折叠按钮) -->
+    <a role="button" onclick="toggleSide()">
+      <i class="bi me-2 fa fa-navicon" style="color: black; font-size:1.5rem; padding-left: 15px;"></i>
+    </a>
+    <!-- Avatar and Dropdown Menu (头像与下拉菜单) -->
+    <div class="dropdown text-end avartar loginTrue">
+      <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="{% static 'src/mdo.png' %}" alt="mdo" width="32" height="32" class="rounded-circle">
+      </a>
+      <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+        <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li> {# Link to Django dashboard URL #}
+        <li><a class="dropdown-item" href="{% static 'settings.html' %}">Settings</a></li> {# Assuming settings.html is static #}
+        <li><a class="dropdown-item" href="{% static 'home/index.html' %}">Profile</a></li> {# Assuming profile is static #}
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item" href="javascript:void(0);" onclick="logOut()">Log Out</a></li> {# Log out handled by JS, needs backend integration #}
+      </ul>
+    </div>
+    <hr>
+  </header>
+  <div class="holyGrail-Body">
+    <!-- Sidebar (侧边导航栏) -->
+    <nav class="holyGrail-nav side_flex toggle-width">
+      <hr>
+      <!-- Option List (选项栏) -->
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="{% url 'dashboard' %}" class="nav-link link-dark" aria-current="page"> {# Link to Django dashboard URL #}
+            <i class="bi me-2 fa fa-home"></i>
+            <span class="side_collapse">Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% static 'home/index.html' %}" class="nav-link link-dark"> {# Assuming personal info is static #}
+            <i class="bi me-2 fa fa-user-circle-o"></i>
+            <span class="side_collapse">Personal Info</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'dashboard' %}" class="nav-link link-dark active fix"> {# Link to Django dashboard URL #}
+            <i class="bi me-2 fa fa-dashboard"></i>
+            <span class="side_collapse">Monitoring Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% static 'index3.html' %}" class="nav-link link-dark active fix"> {# Assuming orders is static #}
+            <i class="bi me-2 fa fa-bar-chart"></i>
+            <span class="side_collapse">Orders</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% static 'index4.html' %}" class="nav-link link-dark"> {# Assuming emergency contacts is static #}
+            <i class="bi me-2 fa fa-plus-square-o"></i>
+            <span class="side_collapse">Emergency Contacts</span>
+          </a>
+        </li>
+      </ul>
+      <hr>
+      <!-- Footer (导航脚) -->
+      <div class="nav-link link-dark">
+        <!-- Settings Button (设置按钮) -->
+        <i class="bi me-2 fa fa-cog" style="font-size:1.5rem;"></i>
+      </div>
+    </nav>
+    <!-- Main Content Area (布局内容主体) -->
+    <main class="holyGrail-content">
+
+      {# 添加病人个人信息展示区域 #}
+      {% if patient %}
+      <div class="patient-info mb-4">
+          <h2>{{ patient.name }} 的健康数据{% if patient.age %} ({{ patient.age }}岁){% endif %}</h2>
+          {# 您可以在这里添加更多病人信息，例如性别、身份证号、手机号等 #}
+          {# <p>性别: {{ patient.gender|default:"未填写" }}</p> #}
+          {# <p>身份证号: {{ patient.id_number|default:"未填写" }}</p> #}
+          {# <p>手机号: {{ patient.phone_number|default:"未填写" }}</p> #}
+      </div>
+      {% endif %}
+
+       <!-- 设备选择器 -->
+      <div class="device-selector mb-4">
+        <select class="form-select" id="deviceSelect">
+          {# Options will be populated by JavaScript calling backend API #}
+          {% for device in devices %}
+          <option value="{{ device.device_id }}">{{ device.device_type }} ({{ device.device_id }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 实时数据卡片 -->
+      <div class="row">
+        <!-- 心率卡片 -->
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">心率</h5>
+              <h2 class="card-text" id="heartRate">--</h2>
+              <p class="card-text"><small class="text-muted">BPM</small></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 血压卡片 -->
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">血压</h5>
+              <h2 class="card-text" id="bloodPressure">--/--</h2>
+              <p class="card-text"><small class="text-muted">mmHg</small></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 血氧卡片 -->
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">血氧</h5>
+              <h2 class="card-text" id="bloodOxygen">--</h2>
+              <p class="card-text"><small class="text-muted">%</small></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 体温卡片 -->
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">体温</h5>
+              <h2 class="card-text" id="temperature">--</h2>
+              <p class="card-text"><small class="text-muted">°C</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图表区域 -->
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">心率趋势</h5>
+              <canvas id="heartRateChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">血氧趋势</h5>
+              <canvas id="bloodOxygenChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 警报区域 -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">活跃警报</h5>
+              <div id="alertsList">
+                {# Alerts will be populated by backend data #}
+                {% for alert in active_alerts %}
+                <div class="alert alert-{{ alert.severity|lower }}" role="alert">
+                  <strong>{{ alert.get_alert_type_display }}</strong>: {{ alert.message }}
+                  <small class="float-end">{{ alert.created_at|timesince }} ago</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">暂无活跃警报</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <!-- Sidebar (边栏) -->
+    <!-- <aside class="holyGrail-ads"></aside> -->
+  </div>
+  <footer></footer>
+
+  <script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+  <script src="{% static 'js/jquery.cookie-1.4.1.js' %}"></script>
+  <script src="{% static 'js/bootstrap-5.1.3/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/message.min.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/home.js' %}"></script>
+
+  {# JavaScript for dashboard specific logic, AJAX calls etc. #}
+  <script>
+    // Add CSRF token to AJAX requests
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    });
+
+    // Function to update real-time data cards
+    function updateRealTimeData() {
+      const deviceId = $('#deviceSelect').val();
+      if (!deviceId) return;
+
+      // TODO: Update URL to match your Django API endpoint for realtime data
+      $.ajax({
+        url: '/health/realtime-data/' + deviceId + '/', // Example URL
+        method: 'GET',
+        success: function(data) {
+          if (data) {
+            $('#heartRate').text(data.heart_rate !== null ? data.heart_rate : '--');
+            $('#bloodPressure').text(data.blood_pressure_systolic !== null && data.blood_pressure_diastolic !== null ? data.blood_pressure_systolic + '/' + data.blood_pressure_diastolic : '--/--');
+            $('#bloodOxygen').text(data.blood_oxygen !== null ? data.blood_oxygen : '--');
+            $('#temperature').text(data.temperature !== null ? data.temperature : '--');
+            // TODO: Optionally update charts with latest data point
+          }
+        },
+        error: function(error) {
+          console.error('Error fetching real-time data:', error);
+          // Handle error - e.g., display '--' or an error message
+           $('#heartRate').text('--');
+          $('#bloodPressure').text('--/--');
+          $('#bloodOxygen').text('--');
+          $('#temperature').text('--');
+        }
+      });
+    }
+
+     // Function to load initial data for charts (e.g., last 24 hours)
+    function loadInitialChartData(deviceId) {
+         if (!deviceId) return;
+        // TODO: Update URL to match your Django API endpoint for historical data
+        $.ajax({
+            url: '/health/get-data/' + deviceId + '/', // Example URL
+            method: 'GET',
+            success: function(data) {
+                // Assuming data is an array of health data objects
+                // TODO: Process data and update Chart.js charts
+                 console.log('Historical data received:', data); // Placeholder
+                 // Example: Update charts (requires Chart.js instance)
+                // updateChart(heartRateChart, data.map(item => item.timestamp), data.map(item => item.heart_rate));
+                // updateChart(bloodOxygenChart, data.map(item => item.timestamp), data.map(item => item.blood_oxygen));
+            },
+            error: function(error) {
+                console.error('Error loading historical data:', error);
+            }
+        });
+    }
+
+    // TODO: Implement Chart.js initialization and update logic based on your original UI's chart implementation
+    let heartRateChart;
+    let bloodOxygenChart;
+
+     function initCharts() {
+        // Example Chart.js initialization (adjust as needed based on your original code)
+        const hrCanvas = document.getElementById('heartRateChart').getContext('2d');
+         heartRateChart = new Chart(hrCanvas, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '心率', data: [], borderColor: '#dc3545', tension: 0.1 }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+         });
+
+        const boCanvas = document.getElementById('bloodOxygenChart').getContext('2d');
+        bloodOxygenChart = new Chart(boCanvas, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '血氧', data: [], borderColor: '#0d6efd', tension: 0.1 }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+     }
+
+     // Example function to update a chart (adjust as needed)
+     function updateChart(chart, labels, data) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+     }
+
+    // Event listener for device selection change
+    $(document).ready(function() {
+       initCharts(); // Initialize charts on document ready
+
+      $('#deviceSelect').change(function() {
+        const selectedDeviceId = $(this).val();
+        updateRealTimeData(); // Update cards
+        loadInitialChartData(selectedDeviceId); // Load historical data for charts
+      });
+
+      // Initial data load when page loads if a device is already selected (e.g., first device)
+       const initialDeviceId = $('#deviceSelect').val();
+       if (initialDeviceId) {
+           updateRealTimeData();
+           loadInitialChartData(initialDeviceId);
+       }
+
+      // Set interval to update real-time data periodically (e.g., every 10 seconds)
+       setInterval(updateRealTimeData, 10000); // Update cards every 10 seconds
+
+         // TODO: Integrate logout function with Django logout view/API
+        function logOut() {
+            // Example: Redirect to Django logout URL
+             window.location.href = '/admin/logout/'; // Example URL (adjust as needed)
+        }
+         // Add this logOut function to the global scope or ensure it's accessible
+         window.logOut = logOut; // Make logOut globally accessible if needed by onclick attributes
+
+        // TODO: Integrate sidebar toggle with responsiveness if not purely CSS
+         function toggleSide() {
+             const sidebar = $('.holyGrail-nav');
+             const mainContent = $('.holyGrail-content');
+             const headerLogo = $('.logo');
+             const sideCollapseElements = $('.side_collapse');
+
+             sidebar.toggleClass('collapsed');
+             mainContent.toggleClass('expanded');
+             headerLogo.toggleClass('logo-collapsed');
+
+             sideCollapseElements.each(function() {
+                 $(this).toggleClass('d-none');
+             });
+
+             // Adjust main content margin
+             if (sidebar.hasClass('collapsed')) {
+                 mainContent.css('margin-left', '60px'); // Adjust based on collapsed sidebar width
+                 headerLogo.css('width', '60px');
+             } else {
+                 mainContent.css('margin-left', '250px'); // Adjust based on expanded sidebar width
+                 headerLogo.css('width', '250px');
+             }
+         }
+        // Add this toggleSide function to the global scope or ensure it's accessible
+        window.toggleSide = toggleSide; // Make toggleSide globally accessible
+
+         // Initial state setup for sidebar
+        // TODO: Consider if initial state should be based on screen size or a saved preference
+         toggleSide(); // Example: Start with sidebar collapsed
+
+    });
+
+
+  </script>
+
+
+</body>
+
+</html>

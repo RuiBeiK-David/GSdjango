@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+    }
+    
+    .settings-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .settings-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Settings</h2>
+    <p class="text-muted">Manage your account settings and preferences</p>
+    
+    <form id="settingsForm" method="POST" action="{% url 'health_monitor:settings' %}">
+        {% csrf_token %}
+        
+        <!-- Notification Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Notification Settings</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="emailNotifications" name="emailNotifications" {% if settings.email_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="smsNotifications" name="smsNotifications" {% if settings.sms_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="emergencyAlerts" name="emergencyAlerts" {% if settings.emergency_alerts %}checked{% endif %}>
+                    <label class="form-check-label" for="emergencyAlerts">Emergency Alerts</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Monitoring Thresholds -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Health Monitoring Thresholds</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Heart Rate Range (bpm)</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" class="form-control" name="heartRateMin" value="{{ settings.heart_rate_min }}">
+                        <span>to</span>
+                        <input type="number" class="form-control" name="heartRateMax" value="{{ settings.heart_rate_max }}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Blood Pressure Range (mmHg)</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" class="form-control" name="bloodPressureSysMin" value="{{ settings.systolic_bp_min }}">
+                        <span>/</span>
+                        <input type="number" class="form-control" name="bloodPressureDiaMin" value="{{ settings.diastolic_bp_min }}">
+                        <span>to</span>
+                        <input type="number" class="form-control" name="bloodPressureSysMax" value="{{ settings.systolic_bp_max }}">
+                        <span>/</span>
+                        <input type="number" class="form-control" name="bloodPressureDiaMax" value="{{ settings.diastolic_bp_max }}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Body Temperature Range (°C)</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" class="form-control" name="bodyTempMin" value="{{ settings.body_temp_min }}" step="0.1">
+                        <span>to</span>
+                        <input type="number" class="form-control" name="bodyTempMax" value="{{ settings.body_temp_max }}" step="0.1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Privacy Settings</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="shareHealthData" name="shareHealthData" {% if settings.share_with_staff %}checked{% endif %}>
+                    <label class="form-check-label" for="shareHealthData">Share Health Data with Medical Staff</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="shareFamilyMembers" name="shareFamilyMembers" {% if settings.share_with_family %}checked{% endif %}>
+                    <label class="form-check-label" for="shareFamilyMembers">Share Data with Family Members</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="anonymousData" name="anonymousData" {% if settings.contribute_research_data %}checked{% endif %}>
+                    <label class="form-check-label" for="anonymousData">Contribute Anonymous Data for Research</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Management -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Data Management</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="dataRetention" class="form-label">Data Retention Period (Months)</label>
+                    <select class="form-select" id="dataRetention" name="dataRetention">
+                        <option value="3" {% if settings.data_retention_period == 3 %}selected{% endif %}>3 months</option>
+                        <option value="6" {% if settings.data_retention_period == 6 %}selected{% endif %}>6 months</option>
+                        <option value="12" {% if settings.data_retention_period == 12 %}selected{% endif %}>1 year</option>
+                        <option value="24" {% if settings.data_retention_period == 24 %}selected{% endif %}>2 years</option>
+                        <option value="0" {% if settings.data_retention_period == 0 %}selected{% endif %}>Forever</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mt-4 mb-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const userApiToken = "{{ token }}";
+    if (userApiToken) {
+        localStorage.setItem('apiToken', userApiToken);
+    }
+</script>
+{% endblock %} 

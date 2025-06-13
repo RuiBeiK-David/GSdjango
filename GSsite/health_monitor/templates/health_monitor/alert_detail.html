@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Alert Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'health_monitor:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'health_monitor:dashboard' %}#alerts">Alerts</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Alert Details</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Alert Details (ID: {{ alert.id }})</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Device:</strong> {{ alert.device.name }} ({{ alert.device.device_id }})</p>
+            <p><strong>Timestamp:</strong> {{ alert.timestamp }}</p>
+            <p><strong>Alert Type:</strong> <span class="badge bg-danger">{{ alert.get_alert_type_display }}</span></p>
+            <p><strong>Message:</strong></p>
+            <p>{{ alert.message }}</p>
+            <p><strong>Status:</strong> {{ alert.acknowledged|yesno:"Acknowledged,Pending" }}</p>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'health_monitor:dashboard' %}#alerts" class="btn btn-primary">Back to Alerts</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const userApiToken = "{{ token }}";
+    if (userApiToken) {
+        localStorage.setItem('apiToken', userApiToken);
+    }
+</script>
+{% endblock %} 

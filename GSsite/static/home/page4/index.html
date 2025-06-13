@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Monitoring Dashboard</title>
+  <link rel="icon" href="../../src/icon.svg" type="image/x-icon">
+  <link rel="stylesheet" href="../../css/bootstrap-5.1.3/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <link rel="stylesheet" href="../../css/message.min.css">
+  <link rel="stylesheet" href="../../css/home.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.2/dist/chartjs-plugin-zoom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    .holyGrail-nav {
+      width: 150px;
+      flex: 0 0 150px;
+    }
+
+    .holyGrail-nav.toggle-width {
+      width: 40px;
+      flex: 0 0 40px;
+    }
+
+    .holyGrail-Body {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+
+    .holyGrail-content {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .health-monitoring {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    
+    .section-title {
+      color: #2d3748;
+      text-align: center;
+      font: 700 36px/1 'Roboto', sans-serif;
+      margin-bottom: 20px;
+      animation: fadeInUp 1s ease-in-out;
+    }
+    
+    .section-description {
+      color: #4a5568;
+      text-align: center;
+      font: 400 18px/1.6 'Open Sans', sans-serif;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      animation: fadeInUp 1s ease-in-out 0.5s;
+    }
+    
+    .metrics-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      margin-bottom: 40px;
+      animation: slideInLeft 1s ease-in-out;
+    }
+    
+    .metric-card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(65, 195, 69, 0.2);
+    }
+    
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(65, 195, 69, 0.2);
+    }
+    
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .metric-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    .metric-icon {
+      width: 32px;
+      height: 32px;
+      padding: 6px;
+      border-radius: 10px;
+      background: rgba(65, 195, 69, 0.1);
+      animation: spin 20s linear infinite;
+    }
+    
+    .metric-status-btn {
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 14px;
+      color: white;
+      background: linear-gradient(135deg, #41C345 0%, #34d339 100%);
+      border: none;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+      box-shadow: 0 2px 10px rgba(65, 195, 69, 0.2);
+    }
+    
+    .metric-status-btn.abnormal {
+      background: linear-gradient(135deg, #DC2626 0%, #ef4444 100%);
+      box-shadow: 0 2px 10px rgba(220, 38, 38, 0.2);
+    }
+    
+    .metric-value {
+      display: flex;
+      align-items: baseline;
+      margin-top: 15px;
+    }
+    
+    .value {
+      color: #2d3748;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      margin-right: 10px;
+    }
+    
+    .unit {
+      color: #4a5568;
+      font-size: 16px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .chart-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .chart-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .chart-controls {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .chart-btn {
+      padding: 8px 15px;
+      border-radius: 10px;
+      border: none;
+      background: #f8f9fa;
+      color: #4a5568;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .chart-btn:hover {
+      background: #e9ecef;
+    }
+    
+    .chart-btn.active {
+      background: #41C345;
+      color: white;
+    }
+    
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    .tips-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 40px;
+      animation: slideInUp 1s ease-in-out;
+    }
+    
+    .tips-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .tips-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
+    
+    .tips-description {
+      color: #4a5568;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .tips-actions {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .btn {
+      padding: 12px 25px;
+      border-radius: 15px;
+      font: 500 15px 'Open Sans', sans-serif;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn i {
+      font-size: 18px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #41C345 0%, #34d339 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(65, 195, 69, 0.2);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(65, 195, 69, 0.3);
+    }
+    
+    .btn-secondary {
+      background: white;
+      border: 2px solid #41C345;
+      color: #41C345;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(65, 195, 69, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .tips-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 1200px) {
+      .metrics-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .metrics-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .tips-card {
+        grid-template-columns: 1fr;
+      }
+      
+      .tips-image {
+        height: 200px;
+      }
+      
+      .tips-actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Animation keyframes remain the same */
+  </style>
+</head>
+<body class="holyGrail">
+  <header class="shadow nav_flex">
+    <!-- Navigation code -->
+  </header>
+  
+  <div class="holyGrail-Body">
+    <nav class="holyGrail-nav side_flex toggle-width">
+      <!-- Sidebar code -->
+    </nav>
+
+    <main class="holyGrail-content">
+      <section class="health-monitoring">
+        <h1 class="section-title">Real-Time Health Monitoring</h1>
+        <p class="section-description">Stay informed with comprehensive health metrics visualized in real-time.</p>
+
+        <div class="metrics-container">
+          <article class="metric-card">
+            <header class="metric-header">
+              <div class="metric-title">
+                <i class="fa fa-heartbeat metric-icon"></i>
+                <span>Heart Rate</span>
+              </div>
+              <button class="metric-status-btn">Normal</button>
+            </header>
+            <div class="metric-value">
+              <span class="value">72</span>
+              <span class="unit">bpm</span>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <header class="metric-header">
+              <div class="metric-title">
+                <i class="fa fa-tachometer metric-icon"></i>
+                <span>Blood Pressure</span>
+              </div>
+              <button class="metric-status-btn">Normal</button>
+            </header>
+            <div class="metric-value">
+              <span class="value">120/80</span>
+              <span class="unit">mmHg</span>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <header class="metric-header">
+              <div class="metric-title">
+                <i class="fa fa-cloud metric-icon"></i>
+                <span>Oxygen Level</span>
+              </div>
+              <button class="metric-status-btn abnormal">Warning</button>
+            </header>
+            <div class="metric-value">
+              <span class="value">95</span>
+              <span class="unit">%</span>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <header class="metric-header">
+              <div class="metric-title">
+                <i class="fa fa-bed metric-icon"></i>
+                <span>Sleep Quality</span>
+              </div>
+              <button class="metric-status-btn">Good</button>
+            </header>
+            <div class="metric-value">
+              <span class="value">85</span>
+              <span class="unit">%</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fa fa-line-chart"></i>
+                Vital Signs Trends
+              </h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" onclick="updateChartType('line')">Line</button>
+                <button class="chart-btn" onclick="updateChartType('area')">Area</button>
+                <button class="chart-btn" onclick="toggleRealtime()">Real-time</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="vitalSignsChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fa fa-pie-chart"></i>
+                Daily Activity Distribution
+              </h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" onclick="updateActivityView('day')">Day</button>
+                <button class="chart-btn" onclick="updateActivityView('week')">Week</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div id="activityChart"></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fa fa-bar-chart"></i>
+                Sleep Analysis
+              </h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" onclick="updateSleepMetric('duration')">Duration</button>
+                <button class="chart-btn" onclick="updateSleepMetric('quality')">Quality</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="sleepChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fa fa-dashboard"></i>
+                Health Score Gauge
+              </h3>
+              <div class="chart-controls">
+                <button class="chart-btn" onclick="refreshHealthScore()">Refresh</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div id="healthGauge"></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="tips-card">
+          <div class="tips-content">
+            <h2 class="tips-title">Health Insights & Recommendations</h2>
+            <p class="tips-description">Based on your recent health metrics, we've prepared personalized recommendations to help you maintain and improve your well-being.</p>
+            <div class="tips-actions">
+              <button class="btn btn-primary">
+                <i class="fa fa-file-text-o"></i>
+                View Detailed Report
+              </button>
+              <button class="btn btn-secondary">
+                <i class="fa fa-bell-o"></i>
+                Set Health Alerts
+              </button>
+            </div>
+          </div>
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/52d56f658d6da169651b01ae2573871cc26856034c893a475334fbe453367b75?placeholderIfAbsent=true&apiKey=1869326afd71475ab108999a5d911486" alt="Health recommendations illustration" class="tips-image">
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../js/jquery-3.6.4.min.js"></script>
+  <script src="../../js/jquery.cookie-1.4.1.js"></script>
+  <script src="../../js/bootstrap-5.1.3/bootstrap.bundle.min.js"></script>
+  <script src="../../js/message.min.js"></script>
+  <script src="../../js/main.js"></script>
+  <script>
+    // Initialize all charts
+    let vitalSignsChart, sleepChart, activityChart, healthGauge;
+    let isRealtimeEnabled = true;
+
+    // Vital Signs Chart
+    function initVitalSignsChart() {
+      const ctx = document.getElementById('vitalSignsChart').getContext('2d');
+      vitalSignsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: 20}, (_, i) => `${i}s ago`),
+          datasets: [
+            {
+              label: 'Heart Rate',
+              data: Array.from({length: 20}, () => Math.floor(Math.random() * 40) + 60),
+              borderColor: '#41C345',
+              backgroundColor: 'rgba(65, 195, 69, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              borderWidth: 2
+            },
+            {
+              label: 'Blood Pressure',
+              data: Array.from({length: 20}, () => Math.floor(Math.random() * 20) + 110),
+              borderColor: '#0d6efd',
+              backgroundColor: 'rgba(13, 110, 253, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              borderWidth: 2
+            },
+            {
+              label: 'Oxygen Level',
+              data: Array.from({length: 20}, () => Math.floor(Math.random() * 5) + 95),
+              borderColor: '#dc3545',
+              backgroundColor: 'rgba(220, 53, 69, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 300,
+            easing: 'linear'
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index',
+            axis: 'x'
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20
+              }
+            },
+            zoom: {
+              pan: {
+                enabled: true,
+                mode: 'x',
+                modifierKey: 'ctrl'
+              },
+              zoom: {
+                wheel: {
+                  enabled: true,
+                  modifierKey: 'ctrl'
+                },
+                pinch: {
+                  enabled: true
+                },
+                mode: 'x',
+                onZoomComplete: function({chart}) {
+                  chart.update('none');
+                }
+              },
+              limits: {
+                x: {min: 'original', max: 'original'},
+                y: {min: 'original', max: 'original'}
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              titleColor: '#2d3748',
+              bodyColor: '#4a5568',
+              borderColor: '#e2e8f0',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    if (label.includes('Heart Rate')) {
+                      label += context.parsed.y + ' bpm';
+                    } else if (label.includes('Blood Pressure')) {
+                      label += context.parsed.y + ' mmHg';
+                    } else {
+                      label += context.parsed.y + '%';
+                    }
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                maxRotation: 0
+              }
+            },
+            y: {
+              beginAtZero: false,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Sleep Analysis Chart
+    function initSleepChart() {
+      const ctx = document.getElementById('sleepChart').getContext('2d');
+      sleepChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [
+            {
+              label: 'Deep Sleep',
+              data: Array.from({length: 7}, () => Math.floor(Math.random() * 3) + 2),
+              backgroundColor: '#41C345'
+            },
+            {
+              label: 'Light Sleep',
+              data: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 4),
+              backgroundColor: '#0d6efd'
+            },
+            {
+              label: 'REM',
+              data: Array.from({length: 7}, () => Math.floor(Math.random() * 2) + 1),
+              backgroundColor: '#dc3545'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              stacked: true,
+              title: {
+                display: true,
+                text: 'Hours'
+              }
+            },
+            x: {
+              stacked: true
+            }
+          }
+        }
+      });
+    }
+
+    // Activity Distribution Chart
+    function initActivityChart() {
+      const options = {
+        series: [44, 55, 13, 43, 22],
+        chart: {
+          height: 300,
+          type: 'donut',
+          animations: {
+            enabled: true,
+            easing: 'easeinout',
+            speed: 800,
+            animateGradually: {
+              enabled: true,
+              delay: 150
+            },
+            dynamicAnimation: {
+              enabled: true,
+              speed: 350
+            }
+          }
+        },
+        labels: ['Exercise', 'Work', 'Sleep', 'Leisure', 'Other'],
+        colors: ['#41C345', '#0d6efd', '#6f42c1', '#fd7e14', '#20c997'],
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '70%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Total Hours',
+                  formatter: function (w) {
+                    return '24h'
+                  }
+                }
+              }
+            }
+          }
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
+      };
+
+      activityChart = new ApexCharts(document.querySelector("#activityChart"), options);
+      activityChart.render();
+    }
+
+    // Health Score Gauge
+    function initHealthGauge() {
+      const options = {
+        series: [76],
+        chart: {
+          height: 300,
+          type: 'radialBar',
+          animations: {
+            enabled: true,
+            easing: 'easeinout',
+            speed: 800
+          }
+        },
+        plotOptions: {
+          radialBar: {
+            startAngle: -90,
+            endAngle: 90,
+            track: {
+              background: "#e7e7e7",
+              strokeWidth: '97%',
+              margin: 5,
+              dropShadow: {
+                enabled: true,
+                top: 2,
+                left: 0,
+                opacity: 0.31,
+                blur: 2
+              }
+            },
+            dataLabels: {
+              name: {
+                show: true,
+                fontSize: '16px',
+                offsetY: -10
+              },
+              value: {
+                show: true,
+                fontSize: '30px',
+                offsetY: -2
+              }
+            }
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'light',
+            shadeIntensity: 0.4,
+            inverseColors: false,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 50, 53, 91]
+          },
+        },
+        labels: ['Health Score'],
+        colors: ['#41C345']
+      };
+
+      healthGauge = new ApexCharts(document.querySelector("#healthGauge"), options);
+      healthGauge.render();
+    }
+
+    // Update functions
+    function updateChartType(type) {
+      const buttons = document.querySelectorAll('.chart-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      vitalSignsChart.data.datasets.forEach(dataset => {
+        if (type === 'area') {
+          dataset.fill = true;
+          dataset.tension = 0.4;
+          dataset.pointRadius = 0;
+        } else {
+          dataset.fill = false;
+          dataset.tension = 0;
+          dataset.pointRadius = 3;
+        }
+      });
+      vitalSignsChart.update();
+    }
+
+    // Real-time updates
+    let updateInterval;
+
+    function startRealtimeUpdates() {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      
+      updateInterval = setInterval(() => {
+        if (!isRealtimeEnabled) return;
+
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0') + ':' +
+                       now.getSeconds().toString().padStart(2, '0');
+
+        // Update vital signs chart with smooth animation
+        vitalSignsChart.data.labels.shift();
+        vitalSignsChart.data.labels.push(timeStr);
+
+        vitalSignsChart.data.datasets.forEach(dataset => {
+          dataset.data.shift();
+          if (dataset.label === 'Heart Rate') {
+            const lastValue = dataset.data[dataset.data.length - 1];
+            const newValue = Math.max(60, Math.min(100, lastValue + (Math.random() - 0.5) * 10));
+            dataset.data.push(Math.round(newValue));
+          } else if (dataset.label === 'Blood Pressure') {
+            const lastValue = dataset.data[dataset.data.length - 1];
+            const newValue = Math.max(100, Math.min(140, lastValue + (Math.random() - 0.5) * 8));
+            dataset.data.push(Math.round(newValue));
+          } else {
+            const lastValue = dataset.data[dataset.data.length - 1];
+            const newValue = Math.max(95, Math.min(100, lastValue + (Math.random() - 0.5) * 2));
+            dataset.data.push(Math.round(newValue));
+          }
+        });
+
+        vitalSignsChart.update('none');
+
+        // Update metric cards with smooth transitions
+        document.querySelectorAll('.metric-card .value').forEach((value, index) => {
+          const current = parseInt(value.textContent);
+          let newValue;
+          
+          if (index === 0) { // Heart Rate
+            newValue = Math.max(60, Math.min(100, current + Math.floor((Math.random() - 0.5) * 5)));
+          } else if (index === 1) { // Blood Pressure
+            newValue = current; // Keep blood pressure stable in cards
+          } else if (index === 2) { // Oxygen
+            newValue = Math.max(95, Math.min(100, current + Math.floor((Math.random() - 0.5) * 2)));
+          } else { // Sleep Quality
+            newValue = Math.max(0, Math.min(100, current + Math.floor((Math.random() - 0.5) * 3)));
+          }
+          
+          value.style.transition = 'color 0.3s ease';
+          if (newValue !== current) {
+            value.style.color = newValue > current ? '#41C345' : '#dc3545';
+            setTimeout(() => {
+              value.style.color = '#2d3748';
+            }, 300);
+          }
+          value.textContent = newValue;
+        });
+      }, 1000);
+    }
+
+    function toggleRealtime() {
+      isRealtimeEnabled = !isRealtimeEnabled;
+      const button = event.target;
+      button.classList.toggle('active');
+      
+      if (isRealtimeEnabled) {
+        startRealtimeUpdates();
+        button.textContent = 'Stop';
+        vitalSignsChart.resetZoom();
+      } else {
+        if (updateInterval) {
+          clearInterval(updateInterval);
+          updateInterval = null;
+        }
+        button.textContent = 'Real-time';
+      }
+    }
+
+    function updateActivityView(period) {
+      const buttons = document.querySelectorAll('.chart-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Simulate data update
+      activityChart.updateSeries([
+        Math.floor(Math.random() * 30) + 30,
+        Math.floor(Math.random() * 20) + 40,
+        Math.floor(Math.random() * 10) + 10,
+        Math.floor(Math.random() * 15) + 35,
+        Math.floor(Math.random() * 10) + 15
+      ]);
+    }
+
+    function updateSleepMetric(metric) {
+      const buttons = document.querySelectorAll('.chart-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (metric === 'quality') {
+        sleepChart.data.datasets = [{
+          label: 'Sleep Quality',
+          data: Array.from({length: 7}, () => Math.floor(Math.random() * 30) + 70),
+          backgroundColor: '#41C345'
+        }];
+      } else {
+        sleepChart.data.datasets = [
+          {
+            label: 'Deep Sleep',
+            data: Array.from({length: 7}, () => Math.floor(Math.random() * 3) + 2),
+            backgroundColor: '#41C345'
+          },
+          {
+            label: 'Light Sleep',
+            data: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 4),
+            backgroundColor: '#0d6efd'
+          },
+          {
+            label: 'REM',
+            data: Array.from({length: 7}, () => Math.floor(Math.random() * 2) + 1),
+            backgroundColor: '#dc3545'
+          }
+        ];
+      }
+      sleepChart.update();
+    }
+
+    function refreshHealthScore() {
+      healthGauge.updateSeries([Math.floor(Math.random() * 30) + 70]);
+    }
+
+    // Initialize all charts
+    document.addEventListener('DOMContentLoaded', function() {
+      initVitalSignsChart();
+      initSleepChart();
+      initActivityChart();
+      initHealthGauge();
+      startRealtimeUpdates(); // Start real-time updates by default
+    });
+  </script>
+</body>
+</html>
+
+
+
