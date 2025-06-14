@@ -1,36 +1,36 @@
 function getLoginStatus(){
-    // 从 localStorage 获取 API token
+    // Get API token from localStorage
     const apiToken = localStorage.getItem('apiToken');
 
     $.ajax({
-        url: '/api/check-login/', // 修正API URL
+        url: '/api/check-login/', // Corrected API URL
         method: 'GET',
         dataType: 'json',
         headers: {
-            // 将 token 添加到请求头
+            // Add token to request headers
             'Authorization': 'Token ' + apiToken 
         },
         success: function(response) {
-            console.log('登录状态：', response);
+            console.log('Login status:', response);
             if (response && response.is_authenticated){
                 $(".loginTrue").show();
                 $(".loginFalse").hide();
-                console.log("已登录");
+                console.log("Logged in");
             } else {
-                // 即使请求成功，但后端验证为未登录
+                // Even if request succeeds, but backend validates as not logged in
                 $(".loginFalse").show();
                 $(".loginTrue").hide();
-                console.log("请先登录！");
+                console.log("Please login first!");
             }
         },
         error: function(xhr, status, error) {
-            console.error('获取登录状态失败：', error);
-            // 获取状态失败视为未登录
+            console.error('Failed to get login status:', error);
+            // Treat status fetch failure as not logged in
             $(".loginFalse").show();
             $(".loginTrue").hide();
-            // 只有当服务器返回401或403时才显示错误消息，避免在登录页也弹窗
+            // Only show error message when server returns 401 or 403, avoid popup on login page
             if (xhr.status === 401 || xhr.status === 403) {
-                 Qmsg.error("失败：您的会话已过期，请重新登录！");
+                 Qmsg.error("Error: Your session has expired, please login again!");
             }
         }
     });
@@ -39,7 +39,7 @@ function getLoginStatus(){
 function logOut(){
     const apiToken = localStorage.getItem('apiToken');
     $.ajax({
-        url: '/api/logout/', // 修正API URL
+        url: '/api/logout/', // Corrected API URL
         method: 'POST',
         dataType: 'json',
         headers: { 
@@ -47,17 +47,17 @@ function logOut(){
             'Authorization': 'Token ' + apiToken 
         },
         success: function(response) {
-             Qmsg.success("提示：登出成功！");
-             localStorage.removeItem('apiToken'); // 登出后移除token
-             window.location.href = '/accounts/login/'; // Redirect to the login page
+             Qmsg.success("Notice: Logout successful!");
+             localStorage.removeItem('apiToken'); // Remove token after logout
+             window.location.href = '/login/'; // Corrected redirect URL to '/login/'
         },
          error: function(xhr, status, error) {
-            console.error('登出请求失败：', error);
-            Qmsg.error('失败：登出失败！');
+            console.error('Logout request failed:', error);
+            Qmsg.error('Error: Logout failed!');
         }
     });
 }
-// 获取 CSRF token (与 index.js 中的函数重复，可以考虑提取到公共文件)
+// Get CSRF token (duplicate with function in index.js, consider extracting to a common file)
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -75,17 +75,17 @@ function getCookie(name) {
 }
 function Msg(response, successFunc){
     if (response["status"]=="Success"){
-        Qmsg.success("提示："+response["msg"]);
+        Qmsg.success("Notice: "+response["msg"]);
         successFunc();
     }else if(response["status"]=="Failed"){
-        Qmsg.error("失败："+response["msg"]);
-    } else { // 添加一个通用的响应处理，以防后端返回的 status 不是 Success 或 Failed
+        Qmsg.error("Error: "+response["msg"]);
+    } else { // Add a general response handler for cases where backend returns status other than Success or Failed
         if (response && response.message) {
-            Qmsg.info("提示："+response["message"]); // 假设后端可能返回 info 级别的消息
+            Qmsg.info("Notice: "+response["message"]); // Assume backend might return info level messages
         } else {
-             Qmsg.info("提示：操作完成。");
+             Qmsg.info("Notice: Operation completed.");
         }
-         successFunc(); // 即使 status 不是 Success，也执行成功回调，根据你的需求调整
+         successFunc(); // Execute success callback even if status is not Success, adjust according to your needs
     }
 }
 function toggleSide(){
@@ -102,8 +102,8 @@ $(document).ready(function() {
             $(this).removeClass('active');
         }
     });
-     // TODO: 将 logout 函数添加到全局作用域或确保其可访问，以便 onclick="logOut()" 调用
+     // TODO: Add logout function to global scope or ensure it's accessible for onclick="logOut()" calls
      window.logOut = logOut;
-     // TODO: 将 toggleSide 函数添加到全局作用域或确保其可访问
+     // TODO: Add toggleSide function to global scope or ensure it's accessible
      window.toggleSide = toggleSide;
 });

@@ -3,30 +3,39 @@ version: '3.8'
 services:
   web:
     build: .
-    entrypoint: /app/entrypoint.sh
-    working_dir: /app
+    command: >
+      bash -c "python manage.py collectstatic --noinput &&
+               python manage.py migrate --noinput &&
+               gunicorn GSsite.wsgi:application --bind 0.0.0.0:8000"
+    working_dir: /app/GSsite
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      - static_volume:/app/GSsite/staticfiles
+      - media_volume:/app/GSsite/media
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
     depends_on:
       - db
       - redis
-      - celery
-      - celery-beat
 
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   redis:
     image: redis:7
@@ -37,24 +46,40 @@ services:
 
   celery:
     build: .
-    working_dir: /app
+    working_dir: /app/GSsite
     command: celery -A GSsite worker -l info
     volumes:
       - .:/app
-    env_file:
-      - .env
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
     depends_on:
       - redis
       - db
 
   celery-beat:
     build: .
-    working_dir: /app
+    working_dir: /app/GSsite
     command: celery -A GSsite beat -l info
     volumes:
       - .:/app
-    env_file:
-      - .env
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
     depends_on:
       - redis
       - db
@@ -62,8 +87,8 @@ services:
   nginx:
     image: nginx:1.25
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      - static_volume:/app/GSsite/staticfiles
+      - media_volume:/app/GSsite/media
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./logs:/app/logs
     ports:

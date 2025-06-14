@@ -1,15 +1,22 @@
-from rest_framework import generics, permissions
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Device, HealthData, HealthAlert, UserProfile, UserSettings
+from .forms import SignUpForm, UserProfileForm
+from django.contrib.auth import login, logout, authenticate
+from django.urls import reverse_lazy
+from django.views import generic
+from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, render, redirect
+from rest_framework import status
+from rest_framework import generics, permissions
 from django.core.cache import cache
 from django.utils import timezone
 from django.db import transaction
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.http import require_http_methods
-from .models import Device, HealthData, HealthAlert, UserProfile, UserSettings
 from .serializers import (
     DeviceSerializer,
     HealthDataSerializer,
@@ -19,13 +26,9 @@ from .serializers import (
 from .tasks import process_health_data
 import json
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
-from rest_framework import status
-from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.contrib.auth.models import User
+import uuid
 
 # Device Views
 class DeviceListCreateAPIView(generics.ListCreateAPIView):
@@ -119,12 +122,45 @@ def index(request):
 def dashboard(request):
     devices = Device.objects.filter(user=request.user)
     alerts = HealthAlert.objects.filter(device__user=request.user).order_by('-timestamp')[:10]
-    token, _ = Token.objects.get_or_create(user=request.user)
-    return render(request, 'health_monitor/dashboard.html', {
+    # Pass the first device to the template context if it exists, otherwise None
+    first_device = devices.first()
+    
+    # Get heart rate and blood pressure data for charts
+    heart_rate_data = []
+    blood_pressure_data = []
+    
+    if first_device:
+        # Get the latest 5 health data points for the first device
+        latest_health_data = HealthData.objects.filter(device=first_device).order_by('-timestamp')[:5]
+        
+        # Process data for charts (reverse to show in chronological order)
+        for data_point in reversed(list(latest_health_data)):
+            # Format timestamp for display
+            formatted_time = data_point.timestamp.strftime('%H:%M')
+            
+            # Add heart rate data if available
+            if data_point.heart_rate is not None:
+                heart_rate_data.append({
+                    'time': formatted_time,
+                    'value': data_point.heart_rate
+                })
+            
+            # Add blood pressure data if available
+            if data_point.blood_pressure_systolic is not None and data_point.blood_pressure_diastolic is not None:
+                blood_pressure_data.append({
+                    'time': formatted_time,
+                    'systolic': data_point.blood_pressure_systolic,
+                    'diastolic': data_point.blood_pressure_diastolic
+                })
+    
+    context = {
         'devices': devices,
         'alerts': alerts,
-        'token': token.key
-    })
+        'first_device': first_device,
+        'heart_rate_data': json.dumps(heart_rate_data),
+        'blood_pressure_data': json.dumps(blood_pressure_data)
+    }
+    return render(request, 'health_monitor/dashboard.html', context)
 
 @login_required
 def settings_view(request):
@@ -132,7 +168,6 @@ def settings_view(request):
     Display and handle updates for user settings.
     """
     settings, _ = UserSettings.objects.get_or_create(user=request.user)
-    token, _ = Token.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         # Notifications
@@ -162,10 +197,7 @@ def settings_view(request):
         messages.success(request, 'Your settings have been saved successfully!')
         return redirect('health_monitor:settings')
 
-    return render(request, 'health_monitor/settings.html', {
-        'settings': settings,
-        'token': token.key
-    })
+    return render(request, 'health_monitor/settings.html')
 
 def about(request):
     return render(request, 'health_monitor/about.html')
@@ -215,27 +247,78 @@ def alerts(request):
 @login_required
 @require_http_methods(['POST'])
 def add_device(request):
+    """
+    添加新设备的视图函数。
+    接收设备名称和设备类型，自动生成唯一的设备ID，并将设备信息保存到数据库中。
+    """
     try:
         data = json.loads(request.body)
+        device_name = data.get('device_name')
+        device_type = data.get('device_type', '')
+        
+        # 生成唯一的设备ID / Generate unique device ID
+        unique_device_id = str(uuid.uuid4())
+        
+        # 创建新设备 / Create new device
         device = Device.objects.create(
             user=request.user,
-            name=data['device_name'],
-            device_type=data['device_type']
+            device_id=unique_device_id,
+            name=device_name,
+            device_type=device_type,
+            is_active=True
         )
-        return JsonResponse({'success': True, 'device_id': device.id})
+        
+        return JsonResponse({
+            'success': True, 
+            'device_id': device.device_id,
+            'message': 'Device added successfully'
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(['POST'])
+def edit_device(request):
+    try:
+        data = json.loads(request.body)
+        device_id = data.get('device_id')
+        device_name = data.get('device_name')
+        device_type = data.get('device_type', '')
+        
+        # Get the device and check ownership
+        device = get_object_or_404(Device, id=device_id, user=request.user)
+        
+        # Update device fields
+        device.name = device_name
+        device.device_type = device_type
+        device.save()
+        
+        return JsonResponse({
+            'success': True, 
+            'device_id': device.id,
+            'message': 'Device updated successfully'
+        })
+    except Device.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Device not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 @require_http_methods(['DELETE'])
 def delete_device(request):
     try:
         device_id = request.GET.get('device_id')
-        device = Device.objects.get(id=device_id, user=request.user)
+        device = get_object_or_404(Device, id=device_id, user=request.user)
+        device_name = device.name
         device.delete()
-        return JsonResponse({'success': True})
+        return JsonResponse({
+            'success': True,
+            'message': f'Device "{device_name}" deleted successfully'
+        })
+    except Device.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Device not found'}, status=404)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 @require_http_methods(['POST'])
@@ -244,7 +327,7 @@ def save_alert_settings(request):
         data = json.loads(request.body)
         threshold, created = HealthThreshold.objects.get_or_create(user=request.user)
         
-        # 更新阈值设置
+        # 更新阈值设置 / Update threshold settings
         threshold.min_heart_rate = data.get('min_heart_rate', 60)
         threshold.max_heart_rate = data.get('max_heart_rate', 100)
         threshold.min_systolic = data.get('min_systolic', 90)
@@ -254,7 +337,7 @@ def save_alert_settings(request):
         threshold.min_temperature = data.get('min_temperature', 36.0)
         threshold.max_temperature = data.get('max_temperature', 37.5)
         
-        # 更新通知设置
+        # 更新通知设置 / Update notification settings
         threshold.email_notifications = data.get('email_notifications', False)
         threshold.sms_notifications = data.get('sms_notifications', False)
         
@@ -268,7 +351,7 @@ def save_alert_settings(request):
 def save_storage_settings(request):
     try:
         data = json.loads(request.body)
-        # 这里可以保存到用户配置或系统设置中
+        # 这里可以保存到用户配置或系统设置中 / This can be saved to user configuration or system settings
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -298,15 +381,24 @@ def register_view(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def logout_view(request):
-    request.user.auth_token.delete()
-    logout(request)
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
+def api_logout_view(request):
+    """
+    API endpoint for user logout.
+    """
+    try:
+        # 不再删除令牌 / No longer delete the token
+        logout(request)
+        return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @login_required
 def profile_view(request):
-    return render(request, 'health_monitor/profile.html')
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'health_monitor/profile.html', context)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -318,6 +410,13 @@ def alert_detail(request, alert_id):
     alert = get_object_or_404(HealthAlert, pk=alert_id, device__user=request.user)
     return render(request, 'health_monitor/alert_detail.html', {'alert': alert})
 
+def logout_view(request):
+    """
+    自定义登出视图，处理用户登出请求并重定向到登录页面
+    Custom logout view that processes user logout requests and redirects to the login page
+    """
+    logout(request)
+    return redirect('login')
 
 # API Views
 class UserProfileAPI(APIView):
@@ -400,6 +499,236 @@ class AlertListAPI(APIView):
         return Response(serializer.data)
 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = SignUpForm
     success_url = reverse_lazy('login')
-    template_name = 'registration/register.html' 
+    template_name = 'registration/register.html'
+
+    def form_valid(self, form):
+        # 保存用户对象 / Save user object
+        response = super().form_valid(form)
+        user = self.object
+        
+        # 确保创建用户资料和设置 / Ensure user profile and settings are created
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        settings, created = UserSettings.objects.get_or_create(user=user)
+        
+        return response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_heart_rate_data(request):
+    """
+    Get the latest 5 heart rate data points for the user's devices.
+    """
+    try:
+        # Get user's devices
+        devices = Device.objects.filter(user=request.user)
+        
+        if not devices.exists():
+            return Response({'error': 'No devices found'}, status=404)
+        
+        # Use the first device by default
+        first_device = devices.first()
+        
+        # Get the latest 5 health data points with heart rate for the device
+        latest_data = HealthData.objects.filter(
+            device=first_device,
+            heart_rate__isnull=False
+        ).order_by('-timestamp')[:5]
+        
+        # Format the data for the chart
+        chart_data = []
+        for data_point in reversed(list(latest_data)):
+            chart_data.append({
+                'time': data_point.timestamp.strftime('%H:%M'),
+                'value': data_point.heart_rate
+            })
+        
+        return Response(chart_data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_blood_pressure_data(request):
+    """
+    Get the latest 5 blood pressure data points for the user's devices.
+    """
+    try:
+        # Get user's devices
+        devices = Device.objects.filter(user=request.user)
+        
+        if not devices.exists():
+            return Response({'error': 'No devices found'}, status=404)
+        
+        # Use the first device by default
+        first_device = devices.first()
+        
+        # Get the latest 5 health data points with blood pressure for the device
+        latest_data = HealthData.objects.filter(
+            device=first_device,
+            blood_pressure_systolic__isnull=False,
+            blood_pressure_diastolic__isnull=False
+        ).order_by('-timestamp')[:5]
+        
+        # Format the data for the chart
+        chart_data = []
+        for data_point in reversed(list(latest_data)):
+            chart_data.append({
+                'time': data_point.timestamp.strftime('%H:%M'),
+                'systolic': data_point.blood_pressure_systolic,
+                'diastolic': data_point.blood_pressure_diastolic
+            })
+        
+        return Response(chart_data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_heart_rate_data(request):
+    """
+    API endpoint to add new heart rate data for a user's device by username.
+    No authentication required for testing purposes.
+    """
+    try:
+        # Get username from request data
+        username = request.data.get('username')
+        if not username:
+            return Response({'error': 'Username is required'}, status=400)
+        
+        # Get heart rate from request data
+        heart_rate = request.data.get('heart_rate')
+        if heart_rate is None:
+            return Response({'error': 'Heart rate value is required'}, status=400)
+        
+        # Find user by username
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': f'User {username} not found'}, status=404)
+        
+        # Get user's devices
+        devices = Device.objects.filter(user=user)
+        
+        if not devices.exists():
+            # Create a default device for the user if none exists
+            device = Device.objects.create(
+                user=user,
+                name=f"{username}'s Default Device",
+                is_active=True
+            )
+        else:
+            # Use the first device
+            device = devices.first()
+        
+        # Create new health data entry
+        health_data = HealthData.objects.create(
+            device=device,
+            heart_rate=heart_rate
+        )
+        
+        return Response({
+            'success': True,
+            'heart_rate': heart_rate,
+            'timestamp': health_data.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        }, status=201)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_blood_pressure_data(request):
+    """
+    API endpoint to add new blood pressure data for a user's device by username.
+    No authentication required for testing purposes.
+    """
+    try:
+        # Get username from request data
+        username = request.data.get('username')
+        if not username:
+            return Response({'error': 'Username is required'}, status=400)
+        
+        # Get blood pressure values from request data
+        systolic = request.data.get('systolic')
+        diastolic = request.data.get('diastolic')
+        
+        if systolic is None or diastolic is None:
+            return Response({'error': 'Both systolic and diastolic values are required'}, status=400)
+        
+        # Find user by username
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': f'User {username} not found'}, status=404)
+        
+        # Get user's devices
+        devices = Device.objects.filter(user=user)
+        
+        if not devices.exists():
+            # Create a default device for the user if none exists
+            device = Device.objects.create(
+                user=user,
+                name=f"{username}'s Default Device",
+                is_active=True
+            )
+        else:
+            # Use the first device
+            device = devices.first()
+        
+        # Create new health data entry
+        health_data = HealthData.objects.create(
+            device=device,
+            blood_pressure_systolic=systolic,
+            blood_pressure_diastolic=diastolic
+        )
+        
+        return Response({
+            'success': True,
+            'systolic': systolic,
+            'diastolic': diastolic,
+            'timestamp': health_data.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        }, status=201)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(['POST'])
+def update_profile(request):
+    """
+    更新用户个人资料的视图函数。
+    接收用户的电子邮件、全名、性别、电话号码和ID号码，并将其保存到数据库中。
+    用户名不可修改。
+    
+    View function for updating user profile.
+    Receives user's email, full name, gender, phone number and ID number, and saves them to the database.
+    Username cannot be modified.
+    """
+    try:
+        data = json.loads(request.body)
+        
+        # 获取当前用户和其个人资料 / Get current user and their profile
+        user = request.user
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        
+        # 更新电子邮件（如果提供） / Update email (if provided)
+        email = data.get('email')
+        if email:
+            user.email = email
+            user.save()
+        
+        # 更新个人资料信息 / Update profile information
+        profile.name = data.get('name', profile.name)
+        profile.gender = data.get('gender', profile.gender)
+        profile.phone_number = data.get('phone_number', profile.phone_number)
+        profile.id_number = data.get('id_number', profile.id_number)
+        profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Profile updated successfully'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500) 

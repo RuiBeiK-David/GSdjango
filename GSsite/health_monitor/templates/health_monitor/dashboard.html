@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}健康监控仪表板{% endblock %}
+{% block title %}Health Monitoring Dashboard{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'health_monitor/css/dashboard.css' %}">
@@ -12,48 +12,48 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- 侧边栏 -->
+        <!-- Sidebar -->
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="{% url 'health_monitor:dashboard' %}">
-                            <i class="fas fa-tachometer-alt"></i> 总览
+                            <i class="fas fa-tachometer-alt"></i> Overview
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'health_monitor:profile' %}">
-                            <i class="fas fa-user-circle"></i> 个人中心
+                            <i class="fas fa-user-circle"></i> Personal Center
                         </a>
                     </li>
                      <li class="nav-item">
                         <a class="nav-link" href="{% url 'health_monitor:devices' %}">
-                            <i class="fas fa-mobile-alt"></i> 设备管理
+                            <i class="fas fa-mobile-alt"></i> Device
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'health_monitor:alerts' %}">
-                            <i class="fas fa-bell"></i> 健康警报
+                            <i class="fas fa-bell"></i> Health Alerts
                         </a>
                     </li>
                 </ul>
             </div>
         </nav>
 
-        <!-- 主要内容区域 -->
+        <!-- Main Content Area -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div id="overview" class="section">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">总览</h1>
+                    <h1 class="h2">Overview</h1>
                 </div>
 
-                <!-- 状态卡片 -->
+                <!-- Status Cards -->
                 <div class="row">
                     <div class="col-xl-3 col-md-6">
                         <a href="{% url 'health_monitor:devices' %}" class="text-decoration-none">
                             <div class="card bg-primary text-white mb-4">
                                 <div class="card-body">
-                                    <h5>活跃设备</h5>
+                                    <h5>Active Devices</h5>
                                     <h2 id="activeDevicesCount">{{ devices.count }}</h2>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                         <a href="{% url 'health_monitor:alerts' %}" class="text-decoration-none">
                             <div class="card bg-warning text-white mb-4">
                                 <div class="card-body">
-                                    <h5>待处理警报</h5>
+                                    <h5>Pending Alerts</h5>
                                     <h2 id="pendingAlertsCount">{{ alerts.count }}</h2>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                         <a href="#" class="text-decoration-none">
                             <div class="card bg-success text-white mb-4">
                                 <div class="card-body">
-                                    <h5>今日数据点</h5>
+                                    <h5>Today's Data Points</h5>
                                     <h2 id="todayDataPointsCount">0</h2>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
                         <a href="{% url 'health_monitor:alerts' %}" class="text-decoration-none">
                             <div class="card bg-danger text-white mb-4">
                                 <div class="card-body">
-                                    <h5>严重警报</h5>
+                                    <h5>Critical Alerts</h5>
                                     <h2 id="criticalAlertsCount">0</h2>
                                 </div>
                             </div>
@@ -91,34 +91,34 @@
                     </div>
                 </div>
 
-                <!-- 图表区域 -->
+                <!-- Chart Area -->
                 <div class="row mt-4">
                     <div class="col-xl-6">
                         <div class="card mb-4">
-                            <div class="card-header"><i class="fas fa-chart-area me-1"></i>心率趋势</div>
+                            <div class="card-header"><i class="fas fa-chart-area me-1"></i>Heart Rate Trends</div>
                             <div class="card-body"><canvas id="heartRateChart"></canvas></div>
                         </div>
                     </div>
                     <div class="col-xl-6">
                         <div class="card mb-4">
-                            <div class="card-header"><i class="fas fa-chart-bar me-1"></i>血压趋势</div>
+                            <div class="card-header"><i class="fas fa-chart-bar me-1"></i>Blood Pressure Trends</div>
                             <div class="card-body"><canvas id="bloodPressureChart"></canvas></div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 设备管理 -->
+            <!-- Device Management -->
             <div id="devices" class="section">
-                 <h2 class="mt-4">我的设备</h2>
+                 <h2 class="mt-4">My Devices</h2>
                  <div class="table-responsive">
                      <table class="table table-striped">
                          <thead>
                              <tr>
-                                 <th>设备ID</th>
-                                 <th>名称</th>
-                                 <th>类型</th>
-                                 <th>最后更新</th>
+                                 <th>Device ID</th>
+                                 <th>Name</th>
+                                 <th>Type</th>
+                                 <th>Last Updated</th>
                              </tr>
                          </thead>
                          <tbody>
@@ -130,16 +130,16 @@
                                  <td>{{ device.last_seen|timesince }} ago</td>
                              </tr>
                          {% empty %}
-                             <tr><td colspan="4">没有找到任何设备。</td></tr>
+                             <tr><td colspan="4">No devices found.</td></tr>
                          {% endfor %}
                          </tbody>
                      </table>
                  </div>
             </div>
 
-            <!-- 健康警报 -->
+            <!-- Health Alerts -->
             <div id="alerts" class="section">
-                 <h2 class="mt-4">最新警报</h2>
+                 <h2 class="mt-4">Latest Alerts</h2>
                  <div id="alerts-list" class="list-group">
                      {% for alert in alerts %}
                      <a href="{% url 'health_monitor:alert_detail' alert.id %}" class="list-group-item list-group-item-action">
@@ -148,10 +148,10 @@
                              <small>{{ alert.timestamp|timesince }} ago</small>
                          </div>
                          <p class="mb-1">{{ alert.message }}</p>
-                         <small>设备: {{ alert.device.name }}</small>
+                         <small>Device: {{ alert.device.name }}</small>
                      </a>
                      {% empty %}
-                     <p>当前没有警报。</p>
+                     <p>No alerts at the moment.</p>
                      {% endfor %}
                  </div>
             </div>
@@ -161,16 +161,157 @@
 </div>
 
 <script>
-    // 将Django的Token传递给JavaScript
+    // Pass Django Token to JavaScript
     const userApiToken = "{{ token }}";
     if (userApiToken) {
         localStorage.setItem('apiToken', userApiToken);
     }
+    
+    // Chart data from backend
+    const heartRateData = {{ heart_rate_data|safe }};
+    const bloodPressureData = {{ blood_pressure_data|safe }};
 </script>
 
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-<script src="{% static 'health_monitor/js/dashboard.js' %}"></script>
+<script>
+    // Initialize charts when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Heart Rate Chart
+        const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+        const heartRateChart = new Chart(heartRateCtx, {
+            type: 'line',
+            data: {
+                labels: heartRateData.map(item => item.time),
+                datasets: [{
+                    label: 'Heart Rate (BPM)',
+                    data: heartRateData.map(item => item.value),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'BPM'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 500 // Faster animation for more frequent updates
+                }
+            }
+        });
+        
+        // Blood Pressure Chart
+        const bpCtx = document.getElementById('bloodPressureChart').getContext('2d');
+        const bpChart = new Chart(bpCtx, {
+            type: 'line',
+            data: {
+                labels: bloodPressureData.map(item => item.time),
+                datasets: [
+                    {
+                        label: 'Systolic',
+                        data: bloodPressureData.map(item => item.systolic),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Diastolic',
+                        data: bloodPressureData.map(item => item.diastolic),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'mmHg'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 500 // Faster animation for more frequent updates
+                }
+            }
+        });
+        
+        // Function to update charts with new data
+        function updateCharts() {
+            // Fetch heart rate data
+            fetch('/api/chart/heart-rate/', {
+                headers: {
+                    'Authorization': 'Token ' + userApiToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    heartRateChart.data.labels = data.map(item => item.time);
+                    heartRateChart.data.datasets[0].data = data.map(item => item.value);
+                    heartRateChart.update();
+                    
+                    // Update today's data points count
+                    document.getElementById('todayDataPointsCount').textContent = 
+                        parseInt(document.getElementById('todayDataPointsCount').textContent) + 1;
+                }
+            })
+            .catch(error => console.error('Error fetching heart rate data:', error));
+            
+            // Fetch blood pressure data
+            fetch('/api/chart/blood-pressure/', {
+                headers: {
+                    'Authorization': 'Token ' + userApiToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    bpChart.data.labels = data.map(item => item.time);
+                    bpChart.data.datasets[0].data = data.map(item => item.systolic);
+                    bpChart.data.datasets[1].data = data.map(item => item.diastolic);
+                    bpChart.update();
+                }
+            })
+            .catch(error => console.error('Error fetching blood pressure data:', error));
+        }
+        
+        // Update charts every 1 second
+        setInterval(updateCharts, 1000);
+    });
+</script>
 {% endblock %} 

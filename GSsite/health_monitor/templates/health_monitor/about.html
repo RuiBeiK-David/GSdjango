@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}健康监控系统 - 关于{% endblock %}
+{% block title %}Health Monitoring System - About{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -68,31 +68,29 @@
 {% endblock %}
 
 {% block content %}
-<!-- 关于我们部分 -->
+<!-- About Us Section -->
 <div class="about-section">
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <h1 class="about-title">关于我们</h1>
+                <h1 class="about-title">About Us</h1>
                 <p class="about-text">
-                    健康监控系统是一个专注于为家庭提供实时健康监控解决方案的平台。我们的使命是通过先进的技术手段，
-                    帮助家庭成员更好地关注和管理老年人或患者的健康状况。
+                    The Health Monitoring System is a platform dedicated to providing real-time health monitoring solutions for families. Our mission is to help family members better monitor and manage the health of elderly people or patients through advanced technology.
                 </p>
                 <p class="about-text">
-                    我们的团队由来自天津理工大学的专业人员组成，包括软件工程师、医疗专家和用户体验设计师。
-                    我们致力于提供最优质的健康监控服务，确保每个家庭都能便捷地获取和管理健康数据。
+                    Our team consists of professionals from Tianjin Polytechnic University, including software engineers, medical experts, and user experience designers. We are committed to providing the highest quality health monitoring services, ensuring that every family can easily access and manage health data.
                 </p>
             </div>
             <div class="col-md-6">
-                <img src="{% static 'src/img-1.png' %}" alt="关于我们" class="img-fluid rounded">
+                <img src="{% static 'src/img-1.png' %}" alt="About Us" class="img-fluid rounded">
             </div>
         </div>
     </div>
 </div>
 
-<!-- 核心功能部分 -->
+<!-- Core Features Section -->
 <div class="container mt-5">
-    <h2 class="text-center mb-5">核心功能</h2>
+    <h2 class="text-center mb-5">Core Features</h2>
     <div class="row">
         <div class="col-md-4">
             <div class="card feature-card">
@@ -100,8 +98,8 @@
                     <div class="feature-icon">
                         <i class="fa fa-heartbeat"></i>
                     </div>
-                    <h4>实时监控</h4>
-                    <p>24小时不间断监测生命体征，包括心率、血压和体温等关键指标。</p>
+                    <h4>Real-time Monitoring</h4>
+                    <p>24/7 continuous monitoring of vital signs, including heart rate, blood pressure, and body temperature.</p>
                 </div>
             </div>
         </div>
@@ -111,8 +109,8 @@
                     <div class="feature-icon">
                         <i class="fa fa-bell"></i>
                     </div>
-                    <h4>智能预警</h4>
-                    <p>异常数据自动报警，支持多种通知方式，确保及时发现健康隐患。</p>
+                    <h4>Smart Alerts</h4>
+                    <p>Automatic alerts for abnormal data, supporting multiple notification methods to ensure timely detection of health risks.</p>
                 </div>
             </div>
         </div>
@@ -120,28 +118,28 @@
             <div class="card feature-card">
                 <div class="card-body text-center">
                     <div class="feature-icon">
-                        <i class="fa fa-chart-line"></i>
+                        <i class="fa fa-bar-chart"></i>
                     </div>
-                    <h4>数据分析</h4>
-                    <p>专业的健康数据分析，生成直观的报告，帮助了解健康趋势。</p>
+                    <h4>Data Analysis</h4>
+                    <p>Professional health data analysis, generating intuitive reports to help understand health trends.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 技术特点部分 -->
+<!-- Technical Features Section -->
 <div class="container mt-5">
-    <h2 class="text-center mb-5">技术特点</h2>
+    <h2 class="text-center mb-5">Technical Features</h2>
     <div class="row">
         <div class="col-md-6">
             <div class="card feature-card">
                 <div class="card-body">
-                    <h4><i class="fa fa-shield-alt text-primary me-2"></i>安全可靠</h4>
+                    <h4><i class="fa fa-shield-alt text-primary me-2"></i>Security & Reliability</h4>
                     <ul class="list-unstyled">
-                        <li class="mb-2">✓ 数据加密存储</li>
-                        <li class="mb-2">✓ 权限管理机制</li>
-                        <li class="mb-2">✓ 隐私保护措施</li>
+                        <li class="mb-2">✓ Encrypted data storage</li>
+                        <li class="mb-2">✓ Permission management</li>
+                        <li class="mb-2">✓ Privacy protection measures</li>
                     </ul>
                 </div>
             </div>
@@ -149,11 +147,11 @@
         <div class="col-md-6">
             <div class="card feature-card">
                 <div class="card-body">
-                    <h4><i class="fa fa-tachometer-alt text-primary me-2"></i>高性能</h4>
+                    <h4><i class="fa fa-tachometer-alt text-primary me-2"></i>High Performance</h4>
                     <ul class="list-unstyled">
-                        <li class="mb-2">✓ 实时数据处理</li>
-                        <li class="mb-2">✓ 分布式架构</li>
-                        <li class="mb-2">✓ 高可用设计</li>
+                        <li class="mb-2">✓ Real-time data processing</li>
+                        <li class="mb-2">✓ Distributed architecture</li>
+                        <li class="mb-2">✓ High availability design</li>
                     </ul>
                 </div>
             </div>
@@ -161,56 +159,49 @@
     </div>
 </div>
 
-<!-- 团队介绍部分 -->
+<!-- Team Introduction Section -->
 <div class="container mt-5 mb-5">
-    <h2 class="text-center mb-5">核心团队</h2>
-    <div class="row">
+    <h2 class="text-center mb-5">Core Team</h2>
+    <div class="row justify-content-center">
         <div class="col-md-4">
             <div class="team-member">
-                <img src="{% static 'src/mdo.png' %}" alt="团队成员1">
-                <h5>张三</h5>
-                <p>首席技术官</p>
+                <img src="{% static 'src/mdo.png' %}" alt="Yu Shao">
+                <h5>Yu Shao</h5>
+                <p>Chief Technology Officer</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="team-member">
-                <img src="{% static 'src/mdo.png' %}" alt="团队成员2">
-                <h5>李四</h5>
-                <p>产品经理</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="team-member">
-                <img src="{% static 'src/mdo.png' %}" alt="团队成员3">
-                <h5>王五</h5>
-                <p>系统架构师</p>
+                <img src="{% static 'src/mdo.png' %}" alt="Zhang Xiaoqiang">
+                <h5>Zhang Xiaoqiang</h5>
+                <p>System Architect</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 联系我们部分 -->
+<!-- Contact Us Section -->
 <div class="container-fluid bg-light py-5">
     <div class="container">
-        <h2 class="text-center mb-5">联系我们</h2>
+        <h2 class="text-center mb-5">Contact Us</h2>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card feature-card">
                     <div class="card-body">
                         <form id="contactForm">
                             <div class="mb-3">
-                                <label for="name" class="form-label">姓名</label>
+                                <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="email" class="form-label">邮箱</label>
+                                <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" required>
                             </div>
                             <div class="mb-3">
-                                <label for="message" class="form-label">留言</label>
+                                <label for="message" class="form-label">Message</label>
                                 <textarea class="form-control" id="message" rows="5" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">发送消息</button>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
                         </form>
                     </div>
                 </div>
@@ -224,8 +215,8 @@
 <script>
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    // 实现发送消息的逻辑
-    alert('感谢您的留言，我们会尽快回复！');
+    // Logic for sending messages
+    alert('Thank you for your message. We will reply as soon as possible!');
     this.reset();
 });
 </script>

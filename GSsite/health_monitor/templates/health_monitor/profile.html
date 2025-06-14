@@ -65,32 +65,28 @@ $('#profileForm').on('submit', function(e) {
     
     const formData = {
         email: $('#email').val(),
-        profile: {
-            name: $('#name').val(),
-            gender: $('#gender').val(),
-            phone_number: $('#phone_number').val(),
-            id_number: $('#id_number').val()
-        }
+        name: $('#name').val(),
+        gender: $('#gender').val(),
+        phone_number: $('#phone_number').val(),
+        id_number: $('#id_number').val()
     };
 
     $.ajax({
-        url: '/api/profile/',
+        url: '{% url "health_monitor:update_profile" %}',
         method: 'POST',
         data: JSON.stringify(formData),
         contentType: 'application/json',
         headers: {
-            'Authorization': 'Token ' + apiToken,
             'X-CSRFToken': '{{ csrf_token }}' 
         },
         success: function(response) {
             Qmsg.success('Profile updated successfully!');
         },
         error: function(xhr) {
-            Qmsg.error('Failed to update profile. ' + xhr.responseText);
+            Qmsg.error('Failed to update profile. ' + (xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error'));
         }
     });
 });
-
 
 // Toggle token visibility
 document.getElementById('toggle-token').addEventListener('click', function() {

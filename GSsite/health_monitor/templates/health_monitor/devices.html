@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}设备管理{% endblock %}
+{% block title %}Device Management{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">设备管理</h1>
+    <h1 class="h2">Device Management</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
-            <i class="fas fa-plus"></i> 添加新设备
+            <i class="fas fa-plus"></i> Add New Device
         </button>
     </div>
 </div>
@@ -16,11 +16,11 @@
     <table class="table table-striped table-sm">
         <thead>
             <tr>
-                <th scope="col">设备ID</th>
-                <th scope="col">名称</th>
-                <th scope="col">类型</th>
-                <th scope="col">最后上线时间</th>
-                <th scope="col">操作</th>
+                <th scope="col">Device ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Last Online</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -28,16 +28,16 @@
             <tr>
                 <td>{{ device.device_id }}</td>
                 <td>{{ device.name }}</td>
-                <td>{{ device.device_type }}</td>
+                <td>{{ device.device_type|default:"Not specified" }}</td>
                 <td>{{ device.last_seen|timesince }} ago</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary">编辑</button>
-                    <button class="btn btn-sm btn-outline-danger">删除</button>
+                    <button class="btn btn-sm btn-outline-primary edit-device-btn" data-device-id="{{ device.id }}" data-device-name="{{ device.name }}" data-device-type="{{ device.device_type|default:'' }}" data-bs-toggle="modal" data-bs-target="#editDeviceModal">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger delete-device-btn" data-device-id="{{ device.id }}" data-device-name="{{ device.name }}" data-bs-toggle="modal" data-bs-target="#deleteDeviceModal">Delete</button>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="text-center">没有找到任何设备。</td>
+                <td colspan="5" class="text-center">No devices found.</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -49,26 +49,219 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addDeviceModalLabel">添加新设备</h5>
+        <h5 class="modal-title" id="addDeviceModalLabel">Add New Device</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="addDeviceForm">
           <div class="mb-3">
-            <label for="deviceName" class="form-label">设备名称</label>
+            <label for="deviceName" class="form-label">Device Name</label>
             <input type="text" class="form-control" id="deviceName" required>
           </div>
           <div class="mb-3">
-            <label for="deviceType" class="form-label">设备类型</label>
-            <input type="text" class="form-control" id="deviceType" placeholder="例如：心率监测器" required>
+            <label for="deviceType" class="form-label">Device Type</label>
+            <input type="text" class="form-control" id="deviceType" placeholder="e.g., Heart Rate Monitor" required>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-        <button type="button" class="btn btn-primary" onclick="addDevice()">保存设备</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="addDevice()">Save Device</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Edit Device Modal -->
+<div class="modal fade" id="editDeviceModal" tabindex="-1" aria-labelledby="editDeviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editDeviceModalLabel">Edit Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editDeviceForm">
+          <input type="hidden" id="editDeviceId">
+          <div class="mb-3">
+            <label for="editDeviceName" class="form-label">Device Name</label>
+            <input type="text" class="form-control" id="editDeviceName" required>
+          </div>
+          <div class="mb-3">
+            <label for="editDeviceType" class="form-label">Device Type</label>
+            <input type="text" class="form-control" id="editDeviceType" placeholder="e.g., Heart Rate Monitor">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="updateDevice()">Update Device</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Device Modal -->
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1" aria-labelledby="deleteDeviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteDeviceModalLabel">Delete Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the device: <span id="deleteDeviceName"></span>?</p>
+        <p class="text-danger">This action cannot be undone.</p>
+        <input type="hidden" id="deleteDeviceId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="deleteDevice()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add Device
+function addDevice() {
+    const deviceName = document.getElementById('deviceName').value;
+    const deviceType = document.getElementById('deviceType').value;
+    
+    if (!deviceName) {
+        alert('Device name is required');
+        return;
+    }
+    
+    fetch('{% url "health_monitor:add_device" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            device_name: deviceName,
+            device_type: deviceType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the new device
+            window.location.reload();
+        } else {
+            alert('Error adding device: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the device');
+    });
+}
+
+// Handle Edit Device Button Click
+document.querySelectorAll('.edit-device-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const deviceId = this.getAttribute('data-device-id');
+        const deviceName = this.getAttribute('data-device-name');
+        const deviceType = this.getAttribute('data-device-type');
+        
+        document.getElementById('editDeviceId').value = deviceId;
+        document.getElementById('editDeviceName').value = deviceName;
+        document.getElementById('editDeviceType').value = deviceType;
+    });
+});
+
+// Update Device
+function updateDevice() {
+    const deviceId = document.getElementById('editDeviceId').value;
+    const deviceName = document.getElementById('editDeviceName').value;
+    const deviceType = document.getElementById('editDeviceType').value;
+    
+    if (!deviceName) {
+        alert('Device name is required');
+        return;
+    }
+    
+    fetch('{% url "health_monitor:edit_device" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            device_id: deviceId,
+            device_name: deviceName,
+            device_type: deviceType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the updated device
+            window.location.reload();
+        } else {
+            alert('Error updating device: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the device');
+    });
+}
+
+// Handle Delete Device Button Click
+document.querySelectorAll('.delete-device-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const deviceId = this.getAttribute('data-device-id');
+        const deviceName = this.getAttribute('data-device-name');
+        
+        document.getElementById('deleteDeviceId').value = deviceId;
+        document.getElementById('deleteDeviceName').textContent = deviceName;
+    });
+});
+
+// Delete Device
+function deleteDevice() {
+    const deviceId = document.getElementById('deleteDeviceId').value;
+    
+    fetch('{% url "health_monitor:delete_device" %}?device_id=' + deviceId, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to update the device list
+            window.location.reload();
+        } else {
+            alert('Error deleting device: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the device');
+    });
+}
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %} 

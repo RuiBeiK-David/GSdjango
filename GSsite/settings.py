@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent
 env = environ.Env(
     DEBUG=(bool, False)
 )
-# 读取 .env 文件（若存在）
+# 读取 .env 文件（若存在） / Read .env file (if it exists)
 env.read_env(os.path.join(BASE_DIR.parent, '.env'))
 
 # Quick-start development settings - unsuitable for production
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'django_redis',
     'health_monitor.apps.HealthMonitorConfig',
 ]
@@ -91,6 +90,7 @@ DATABASES = {
 }
 
 # 若在生产环境需要使用 PostgreSQL，可通过环境变量覆盖以上设置，例如：
+# If you need to use PostgreSQL in production, you can override the above settings via environment variables, for example:
 # import os, dj_database_url
 # DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
@@ -134,10 +134,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# 生产环境收集静态文件输出目录
+# 生产环境收集静态文件输出目录 / Production environment static files collection output directory
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 媒体文件（用户上传）
+# 媒体文件（用户上传） / Media files (user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -149,17 +149,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework 配置
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 }
 
 # Celery 配置
-# 使用 Redis 作为消息代理和结果后端
+# 使用 Redis 作为消息代理和结果后端 / Using Redis as message broker and result backend
 REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
 
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default=f'{REDIS_URL}/0')
@@ -167,11 +166,11 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default=f'{REDIS_URL}/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Shanghai' # 根据你的实际时区调整
+CELERY_TIMEZONE = 'Asia/Shanghai' # 根据你的实际时区调整 / Adjust according to your actual timezone
 
 # Celery Beat 配置
 CELERY_BEAT_SCHEDULE = {
-    # 暂时注释掉不存在的任务
+    # 暂时注释掉不存在的任务 / Temporarily comment out non-existent tasks
     # 'scan-and-process-health-data': {
     #     'task': 'health_monitor.tasks.scan_and_trigger_batch_processing_task',
     #     'schedule': 30.0,
@@ -180,7 +179,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
 }
 
-# 缓存配置
+# 缓存配置 / Cache configuration
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -191,15 +190,15 @@ CACHES = {
     }
 }
 
-# 会话配置
+# 会话配置 / Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 1209600  # 2周
 
-# 登录配置
-LOGIN_URL = '/login'
+# 登录配置 / Login configuration
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = '/login/'
 
 # Channel layers (WebSocket via Redis)
 CHANNEL_LAYERS = {
@@ -211,7 +210,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-# 基础日志配置（INFO 级别输出到控制台与文件）
+# 基础日志配置（INFO 级别输出到控制台与文件） / Basic logging configuration (INFO level output to console and file)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}健康警报{% endblock %}
+{% block title %}Health Alerts{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">健康警报</h1>
+    <h1 class="h2">Health Alerts</h1>
 </div>
 
 <!-- Filter Form -->
 <form method="get" class="row g-3 mb-4">
     <div class="row mb-4">
         <div class="col-md-5">
-            <label for="device-filter" class="form-label">按设备筛选</label>
+            <label for="device-filter" class="form-label">Filter by Device</label>
             <select id="device-filter" name="device" class="form-select">
-                <option value="">所有设备</option>
+                <option value="">All Devices</option>
                 {% for device in devices %}
                     <option value="{{ device.device_id }}" {% if device.device_id == selected_device %}selected{% endif %}>
                         {{ device.name }}
@@ -22,15 +22,15 @@
             </select>
         </div>
         <div class="col-md-5">
-            <label for="status-filter" class="form-label">按状态筛选</label>
+            <label for="status-filter" class="form-label">Filter by Status</label>
             <select id="status-filter" name="status" class="form-select">
-                <option value="">所有状态</option>
-                <option value="new" {% if selected_status == 'new' %}selected{% endif %}>新警报</option>
-                <option value="read" {% if selected_status == 'read' %}selected{% endif %}>已读警报</option>
+                <option value="">All Statuses</option>
+                <option value="new" {% if selected_status == 'new' %}selected{% endif %}>New Alerts</option>
+                <option value="read" {% if selected_status == 'read' %}selected{% endif %}>Read Alerts</option>
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">筛选</button>
+            <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </div>
 </form>
@@ -44,17 +44,17 @@
             <small>{{ alert.timestamp|timesince }} ago</small>
         </div>
         <p class="mb-1">{{ alert.message }}</p>
-        <small>设备: {{ alert.device.name }}</small>
+        <small>Device: {{ alert.device.name }}</small>
         {% if alert.is_active %}
         <form method="post" action="" style="display: inline; float: right;">
             {% csrf_token %}
             <input type="hidden" name="alert_id" value="{{ alert.id }}">
-            <button type="submit" class="btn btn-sm btn-outline-success">标记为已读</button>
+            <button type="submit" class="btn btn-sm btn-outline-success">Mark as Read</button>
         </form>
         {% endif %}
     </div>
     {% empty %}
-    <p class="text-center">没有找到任何警报。</p>
+    <p class="text-center">No alerts found.</p>
     {% endfor %}
 </div>
 

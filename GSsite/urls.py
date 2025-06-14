@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from health_monitor.views import SignUpView # We need to import the SignUpView
+from health_monitor.views import SignUpView, logout_view  # 导入自定义的logout_view / Import custom logout_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,7 +32,7 @@ urlpatterns = [
 
     # Auth URLs
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', logout_view, name='logout'),  # 使用自定义的logout_view / Use custom logout_view
     path('register/', SignUpView.as_view(), name='register'),
 ]
 

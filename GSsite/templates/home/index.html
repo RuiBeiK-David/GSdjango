@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <!-- Navigation Bar (导航栏) -->
+    <!-- Navigation Bar -->
     <div class="container">
         <header class="p-3 mb-3 border-bottom">
             <div class="container">
@@ -33,12 +33,12 @@
                         <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(homeAboutUrl)" class="nav-link px-2 link-dark">About</a></li>
                         <li><a href="javascript:void(0);" onclick="checkLoginAndNavigate(loginUserUrl)" class="nav-link px-2 link-dark">Switch Role</a></li>
                     </ul>
-                    <!-- Login and Register Buttons when not logged in (未登陆时的注册与登录按钮) -->
+                    <!-- Login and Register Buttons when not logged in -->
                     <div class="col-md-3 text-end loginFalse" id="loginButtons">
                         <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
                     </div>
-                    <!-- Avatar and Dropdown Menu after login (登录后变为头像与下拉菜单) -->
+                    <!-- Avatar and Dropdown Menu after login -->
                     <div class="dropdown text-end loginTrue" id="loginDropdown" style="display: none;">
                         <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -59,7 +59,7 @@
         </header>
     </div>
 
-    <!-- Home Page Background Section (首页背景) -->
+    <!-- Home Page Background Section -->
     <div class="bg_section">
         <div class="container">
             <div class="row">
@@ -75,18 +75,18 @@
         </div>
     </div>
 
-    <!-- Registration Modal (注册模态框) -->
+    <!-- Registration Modal -->
     <div class="modal fade" id="registerModal">
         <div class="modal-dialog">
         <div class="modal-content">
 
-            <!-- Modal Header (模态框头部) -->
+            <!-- Modal Header -->
             <div class="modal-header">
             <h4 class="modal-title">User Registration</h4>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Modal Body (模态框内容) -->
+            <!-- Modal Body -->
             <div class="modal-body">
                 <form id="formRegister" onsubmit="return false;">
                     <h3>User Information</h3>
@@ -112,7 +112,7 @@
                 </form>
             </div>
 
-            <!-- Modal Footer (模态框底部) -->
+            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="registerButton">Register</button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="registerModalDismiss">Close</button>
@@ -122,18 +122,18 @@
         </div>
     </div>
 
-    <!-- Login Modal (登录模态框) -->
+    <!-- Login Modal -->
     <div class="modal fade" id="loginModal">
         <div class="modal-dialog">
         <div class="modal-content">
 
-            <!-- Modal Header (模态框头部) -->
+            <!-- Modal Header -->
             <div class="modal-header">
             <h4 class="modal-title">User Login</h4>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Modal Body (模态框内容) -->
+            <!-- Modal Body -->
             <div class="modal-body">
                 <form id="formLogin" onsubmit="return false;">
                     <div class="mb-3">
@@ -147,7 +147,7 @@
                 </form>
             </div>
 
-            <!-- Modal Footer (模态框底部) -->
+            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="loginButton">Login</button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="loginModalDismiss">Close</button>
@@ -172,7 +172,7 @@
         const logoutUserUrl = "{% url 'logout_user' %}";
         const registerUserUrl = "{% url 'register_user' %}";
 
-        // 检查登录状态并导航 Check login status and navigate
+        // Check login status and navigate
         function checkLoginAndNavigate(url) {
             // TODO: Modify to check Django authentication status
             const authToken = localStorage.getItem('authToken'); // Check for authToken
