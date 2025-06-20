@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ..
+    command: >
+      bash -c "python manage.py collectstatic --noinput &&
+               python manage.py migrate --noinput &&
+               gunicorn GSsite.wsgi:application --bind 0.0.0.0:8000"
+    working_dir: /app/GSsite
+    volumes:
+      - ..:/app
+      - static_volume:/app/GSsite/staticfiles
+      - media_volume:/app/GSsite/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: ..
+    working_dir: /app/GSsite
+    command: celery -A GSsite worker -l info
+    volumes:
+      - ..:/app
+      - static_volume:/app/GSsite/staticfiles
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - redis
+      - db
+
+  celery-beat:
+    build:
+      context: ..
+    working_dir: /app/GSsite
+    command: celery -A GSsite beat -l info
+    volumes:
+      - ..:/app
+      - static_volume:/app/GSsite/staticfiles
+    environment:
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-change-me-in-production
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CHANNEL_REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - redis
+      - db
+
+  nginx:
+    image: nginx:1.25
+    volumes:
+      - static_volume:/app/GSsite/staticfiles
+      - media_volume:/app/GSsite/media
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./logs:/app/logs
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume: 

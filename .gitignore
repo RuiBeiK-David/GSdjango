@@ -48,4 +48,8 @@ Thumbs.db
 # Project specific
 logs/
 celerybeat-schedule
-*.rdb 
+*.rdb
+*.tar
+
+# Large tar image files
+*.tar 
