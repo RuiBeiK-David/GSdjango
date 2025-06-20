@@ -1,5 +1,7 @@
 # Health Monitoring System
 
+docker-compose up -d --build #run the project
+
 This is a Django-based intelligent health monitoring platform for real-time monitoring of user health data, providing alerts and data analysis functions. The system is suitable for families and medical institutions that need to remotely monitor the health status of the elderly or patients.
 
 ## Features Overview
